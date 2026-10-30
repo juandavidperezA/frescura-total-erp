@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -108,4 +110,34 @@ public class SupplierDAO {
         }return null;
     }
     
+    public List<Supplier> findAll()throws SQLException{
+        String sql="SELECT * FROM proveedores";
+        
+        List<Supplier> sup = new ArrayList<>();
+        
+        try(Connection conn= DatabaseConnection.getConnection();
+            PreparedStatement ps= conn.prepareStatement(sql)){
+            
+            
+            try(ResultSet rs= ps.executeQuery()){
+                while(rs.next()){
+                    
+                    int supplierId= rs.getInt("id_proveedor");
+                    String name= rs.getString("nombre");
+                    String nit = rs.getString("nit");
+                    String contactPerson= rs.getString("persona_contacto");
+                    String email= rs.getString("email");
+                    String phone= rs.getString("telefono");
+                    String address= rs.getString("direccion");
+                    boolean active= rs.getBoolean("activo");
+                    LocalDateTime registrationDate= rs.getObject("fecha_registro", LocalDateTime.class);
+                    
+                    Supplier supplier = new Supplier(supplierId, name, nit, contactPerson, email, phone, address, active, registrationDate);
+                    
+                    sup.add(supplier);
+                }  
+            }
+            return sup;
+        }
+    }    
 }
