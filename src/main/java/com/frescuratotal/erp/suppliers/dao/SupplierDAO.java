@@ -46,7 +46,7 @@ public class SupplierDAO {
     }
 
     public Supplier findById(int id)throws SQLException{
-
+        
         if(id<=0){
             throw new SQLException("Supplier ID must be positive");
         }
@@ -128,6 +128,22 @@ public class SupplierDAO {
 
             int affectedRows = ps.executeUpdate();
             return affectedRows;
+        }
+    }
+    
+    public int setSupplierActive(int id, boolean active) throws SQLException{
+        if(id<=0){
+            throw new SQLException("Invalid supplier ID");
+        }
+        
+        String sql="UPDATE proveedores SET activo = ? where id_proveedor = ?";
+        
+        try(Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setBoolean(1, active);
+            ps.setInt(2, id);
+            
+            return ps.executeUpdate();
         }
     }
 }
