@@ -7,6 +7,8 @@ package com.frescuratotal.erp.suppliers.view;
 import com.frescuratotal.erp.suppliers.controller.SupplierController;
 import com.frescuratotal.erp.suppliers.model.Supplier;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -22,7 +24,7 @@ public class SupplierView {
     }
     
     public void showMenu(){
-        System.out.println("----------------------------------------------");
+        System.out.println("\n\n----------------------------------------------");
         System.out.println("    Supplier Menu   ");
         System.out.println("1. Register supplier");
         System.out.println("2. List all suppliers");
@@ -97,7 +99,190 @@ public class SupplierView {
                 } catch (SQLException e) {
                     System.out.println("Error registering supplier: "+e.getMessage());
                 }
-                break;      
+                break;
+            case 2:
+                try{
+                List<Supplier> suppliers = control.findAllSuppliers();
+                if(suppliers.isEmpty()){
+                    System.out.println("No suppliers registered.");
+                }
+                for(Supplier supplierss: suppliers){
+                    System.out.println("ID: "+supplierss.getId()+"| name: "+supplierss.getName());
+                }
+                }catch(SQLException e){
+                    System.out.println("Error listing suppliers: " + e.getMessage());
+                }
+                break;
+                
+            case 3:
+                System.out.println("Enter supplier ID: ");
+                while(!sc.hasNextInt()){
+                    System.out.println("ID invalid only numbers");
+                    sc.next();
+                    System.out.println("Enter supplier ID: ");
+                }
+                int foundID= sc.nextInt();
+                if (foundID <= 0) {
+                    System.out.println("Supplier ID must be positive.");
+                    break;
+                }
+                
+                try {
+                    Supplier sup1= control.findSupplierById(foundID);
+                    if (sup1==null){
+                        System.out.println("Supplier not found.");
+                    }else{
+                        System.out.println("ID: "+sup1.getId()+" |  nombre: "+sup1.getName());
+                    }
+                } catch (SQLException e) {
+                    System.out.println("Error finding suppliers: " + e.getMessage());
+                }
+                break;
+                
+            case 4:
+                System.out.println("Enter supplier ID to update: ");
+                while(!sc.hasNextInt()){
+                    System.out.println("Invalid ID. Only numbers.");
+                    sc.next();
+                    System.out.println("Enter supplier ID to update: ");
+                }
+                int updateId=sc.nextInt();
+                sc.nextLine();
+                
+                if(updateId<=0){
+                    System.out.println("Supplier ID must be positive.");
+                    break;
+                }
+                
+                try {
+                    Supplier existingSupplier = control.findSupplierById(updateId);
+                    
+                    if(existingSupplier==null){
+                        System.out.println("Supplier not found.");
+                        break;
+                    }
+                    System.out.println("Updating supplier: " + existingSupplier.getName());
+                    
+                    System.out.println("New name ["+existingSupplier.getName()+"]:");
+                    String newName= sc.nextLine();
+                    
+                    if(newName.isBlank()){
+                        newName= existingSupplier.getName();
+                    }
+                    
+                    System.out.println("New email ["+existingSupplier.getEmail()+"]: ");
+                    String newEmail=sc.nextLine();
+                    
+                    if(newEmail.isBlank()){
+                        newEmail=existingSupplier.getEmail();
+                    }
+                    
+                    
+                    System.out.println("New nit ["+existingSupplier.getNit()+"]: ");
+                    String newNit=sc.nextLine();
+                    
+                    if(newNit.isBlank()){
+                        newNit= existingSupplier.getNit();    
+                    }
+                    
+                    System.out.println("New contact person["+existingSupplier.getContactPerson()+"]: ");
+                    String newcontact=sc.nextLine();
+                    
+                    if(newcontact.isBlank()){
+                        newcontact=existingSupplier.getContactPerson();
+                    }
+                    
+                    System.out.println("New phone["+existingSupplier.getPhone()+"]: ");
+                    String newPhone=sc.nextLine();
+                    
+                    if(newPhone.isBlank()){
+                        newPhone=existingSupplier.getPhone();
+                    }
+                    
+                    System.out.println("New address["+existingSupplier.getAddress()+"]: ");
+                    String newAddress= sc.nextLine();
+                    
+                    if(newAddress.isBlank()){
+                        newAddress=existingSupplier.getAddress();
+                    }
+                    
+                    Supplier updatedSupplier=new Supplier(updateId, newName, newNit, newcontact, newEmail, newPhone, newAddress, existingSupplier.isActive(), existingSupplier.getRegistrationDate());
+                    int affectedRows = control.updateSupplier(updatedSupplier);
+                    
+                    if(affectedRows>0){
+                        System.out.println("Supplier updated successfully.");
+                    }else{
+                        System.out.println("Supplier was not updated.");
+                    }
+                    
+                } catch (SQLException e) {
+                    System.out.println("Error updating supplier: " + e.getMessage());
+                }
+                break;
+                
+            case 5:
+                System.out.println("Enter supplier ID: ");
+
+                while (!sc.hasNextInt()) {
+                    System.out.println("Invalid ID. Only numbers.");
+                    sc.next();
+                    System.out.println("Enter supplier ID: ");
+                }
+
+                int supplierId = sc.nextInt();
+                sc.nextLine();
+
+                if (supplierId <= 0) {
+                    System.out.println("Supplier ID must be positive.");
+                    break;
+                }
+
+                try {
+                    Supplier existingSupplier = control.findSupplierById(supplierId);
+
+                    if (existingSupplier == null) {
+                        System.out.println("Supplier not found.");
+                        break;
+                    }
+
+                    System.out.println("Current status: "+(existingSupplier.isActive() ? "active" : "inactive"));
+                    
+                    System.out.println("1. Activate supplier");
+                    System.out.println("2. Deactivate supplier");
+                    System.out.println("choose an option: ");
+                    while(!sc.hasNextInt()){
+                        System.out.println("Invalid option. Only numbers.");
+                        sc.next();
+                        System.out.println("choose an option: ");
+                    }
+                    int statusOption=sc.nextInt();
+                    
+                    
+                    int affectedRow=0;
+                    switch (statusOption) {
+                        case 1:
+                            affectedRow=control.setSupplierActive(supplierId, true);
+                            break;
+                        case 2:
+                            affectedRow=control.setSupplierActive(supplierId, false);
+                            break;
+                        default:
+                            System.out.println("Invalid status option.");
+                            break;
+                    }
+                    
+                    if(statusOption==1 || statusOption==2){
+                        if(affectedRow>0){
+                        System.out.println("Supplier status updated successfully.");
+                    }else{
+                        System.out.println("Supplier status was not updated.");
+                    }
+                    }
+
+                } catch (SQLException e) {
+                        System.out.println("Error changing supplier status: " + e.getMessage());
+                   }                
+                break;
             case 6:
                 System.out.println("Returning to main menu...");
                 break;
