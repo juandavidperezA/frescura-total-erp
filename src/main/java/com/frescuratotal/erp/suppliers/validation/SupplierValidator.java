@@ -45,6 +45,11 @@ public class SupplierValidator {
         if (supplier.getPhone() != null && supplier.getPhone().length() > 20) {
             throw new SQLException("Supplier phone cannot exceed 20 characters");
         }
+        
+        if(supplier.getPhone()!=null && !supplier.getPhone().isBlank()&& !supplier.getPhone().matches("[0-9]+")){
+            
+           throw new SQLException("Supplier phone must contain only numbers");
+        }
 
         if (supplier.getContactPerson() != null
                 && supplier.getContactPerson().length() > 100) {

@@ -5,6 +5,10 @@
 package com.frescuratotal.erp;
 
 import com.frescuratotal.erp.config.DatabaseConnection;
+import com.frescuratotal.erp.suppliers.controller.SupplierController;
+import com.frescuratotal.erp.suppliers.dao.SupplierDAO;
+import com.frescuratotal.erp.suppliers.model.Supplier;
+import com.frescuratotal.erp.suppliers.view.SupplierView;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -21,5 +25,10 @@ public class FrescuraTotalErp {
         } catch (SQLException e) {
             System.out.println("error de conexion: "+e.getMessage());
         }
+
+        SupplierDAO dao = new SupplierDAO();
+        SupplierController controller = new SupplierController(dao);
+        SupplierView view= new SupplierView(controller);
+        view.start();
     }
 }
