@@ -9,6 +9,7 @@ import com.frescuratotal.erp.suppliers.dao.SupplierProductDAO;
 import com.frescuratotal.erp.suppliers.model.Supplier;
 import com.frescuratotal.erp.suppliers.model.SupplierProduct;
 import com.frescuratotal.erp.suppliers.model.SupplierProductDetail;
+import com.frescuratotal.erp.suppliers.model.SupplierReceiptDetail;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,7 +38,8 @@ public class SupplierView {
         System.out.println("6. Associate product with supplier");
         System.out.println("7. List products by supplier");
         System.out.println("8. List suppliers by product");
-        System.out.println("9. Return to main menu");
+        System.out.println("9. View supplier receipt history");
+        System.out.println("10. Return to main menu");
         System.out.println("Please choose an option: ");
         System.out.println("----------------------------------------------");        
     }
@@ -382,13 +384,45 @@ public class SupplierView {
                 }
                 break;
             case 9:
+                    System.out.println("Enter supplier ID:");
+
+                    while (!sc.hasNextInt()) {
+                        System.out.println("Invalid ID. Only numbers.");
+                        sc.next();
+                        System.out.println("Enter supplier ID:");
+                    }
+                    int receiptSupplierId= sc.nextInt();
+                    if(receiptSupplierId<=0){
+                        System.out.println("Supplier ID must be positive.");
+                        break;
+                    }
+                    
+                    try {
+                    List<SupplierReceiptDetail> receipts = control.findReceiptsBySupplierId(receiptSupplierId);
+                    if(receipts.isEmpty()){
+                        System.out.println("No merchandise receipts found for this supplier.");
+                        break;
+                    }
+                    
+                    for(SupplierReceiptDetail receipt : receipts){
+                        System.out.println("Lot number: "+receipt.getLotNumber());
+                        System.out.println("Product name: "+receipt.getProductName());
+                        System.out.println("Initial Quantity: "+receipt.getInitialQuantity());
+                        System.out.println("Purchase price: "+ receipt.getPurchasePrice());
+                        System.out.println("Entry date: "+receipt.getEntryDate());
+                    }
+                } catch (SQLException e) {
+                        System.out.println("Error retrieving supplier receipt history: "+e.getMessage());
+                }
+                break;
+            case 10:
                 System.out.println("Returning to main menu...");
                 break;
             default:
                 System.out.println("Invalid option. Please try again.");
                 break;
         }
-    }while(option!=9);
+    }while(option!=10);
     }
     
 }

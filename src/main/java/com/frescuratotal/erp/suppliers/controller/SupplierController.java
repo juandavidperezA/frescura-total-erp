@@ -6,9 +6,11 @@ package com.frescuratotal.erp.suppliers.controller;
 
 import com.frescuratotal.erp.suppliers.dao.SupplierDAO;
 import com.frescuratotal.erp.suppliers.dao.SupplierProductDAO;
+import com.frescuratotal.erp.suppliers.dao.SupplierReceiptDAO;
 import com.frescuratotal.erp.suppliers.model.Supplier;
 import com.frescuratotal.erp.suppliers.model.SupplierProduct;
 import com.frescuratotal.erp.suppliers.model.SupplierProductDetail;
+import com.frescuratotal.erp.suppliers.model.SupplierReceiptDetail;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -19,10 +21,12 @@ import java.util.List;
 public class SupplierController {
     private SupplierDAO dao;
     private SupplierProductDAO supplierProductDAO ;
+    private SupplierReceiptDAO supplierReceiptDAO;
     
-    public SupplierController(SupplierDAO pDao, SupplierProductDAO pSupplierProductDAO){
+    public SupplierController(SupplierDAO pDao, SupplierProductDAO pSupplierProductDAO, SupplierReceiptDAO pSupplierReceiptDAO){
         dao=pDao;
         supplierProductDAO= pSupplierProductDAO;
+        supplierReceiptDAO= pSupplierReceiptDAO;
     }
     
     public Supplier findSupplierById(int id)throws SQLException{
@@ -63,5 +67,10 @@ public class SupplierController {
     public List<SupplierProductDetail> findSuppliersByProductId(int productId)throws SQLException{
         List<SupplierProductDetail> supplierProducts= supplierProductDAO.findSuppliersByProductId(productId);
         return supplierProducts;
+    }
+    
+    public List<SupplierReceiptDetail> findReceiptsBySupplierId(int supplierId) throws SQLException {
+        List<SupplierReceiptDetail> receipts= supplierReceiptDAO.findReceiptsBySupplierId(supplierId);
+        return receipts;
     }
 }

@@ -8,6 +8,7 @@ import com.frescuratotal.erp.config.DatabaseConnection;
 import com.frescuratotal.erp.suppliers.controller.SupplierController;
 import com.frescuratotal.erp.suppliers.dao.SupplierDAO;
 import com.frescuratotal.erp.suppliers.dao.SupplierProductDAO;
+import com.frescuratotal.erp.suppliers.dao.SupplierReceiptDAO;
 import com.frescuratotal.erp.suppliers.view.SupplierView;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +29,8 @@ public class FrescuraTotalErp {
 
         SupplierDAO dao = new SupplierDAO();
         SupplierProductDAO productDAO= new SupplierProductDAO();
-        SupplierController controller = new SupplierController(dao,productDAO);
+        SupplierReceiptDAO receiptDAO= new SupplierReceiptDAO();
+        SupplierController controller = new SupplierController(dao,productDAO,receiptDAO);
         SupplierView view= new SupplierView(controller);
         view.start();
     }
