@@ -7,12 +7,15 @@ package com.frescuratotal.erp.inventory.dao;
 import com.frescuratotal.erp.config.DatabaseConnection;
 import com.frescuratotal.erp.inventory.model.InventoryLot;
 import com.frescuratotal.erp.inventory.validation.InventoryLotValidator;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  *
@@ -58,5 +61,40 @@ public class InventoryLotDAO {
                 return rs.next() ? rs.getInt(1) : -1;
             }
         }
+    }
+    
+    public InventoryLot findById(int id)throws SQLException{
+        if(id<=0){
+            throw new SQLException("Lot ID must be positive");
+        }
+        
+        String sql="SELECT * FROM lotes_inventario WHERE id_lote= ?";
+        
+        try(Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement ps= conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            
+            try(ResultSet rs=ps.executeQuery()){
+                if(rs.next()){
+                    int lotId = rs.getInt("id_lote");
+                    String lotNumber = rs.getString("numero_lote");
+                    int productId = rs.getInt("id_producto");
+                    int supplierId = rs.getInt("id_proveedor");
+                    LocalDateTime entryDate = rs.getTimestamp("fecha_ingreso").toLocalDateTime();
+                    LocalDate expirationDate= rs.getDate("fecha_vencimiento").toLocalDate();
+                    BigDecimal initialQuantity= rs.getBigDecimal("cantidad_inicial");
+                    BigDecimal quantity = rs.getBigDecimal("cantidad");
+                    BigDecimal purchasePrice = rs.getBigDecimal("precio_compra");
+                    BigDecimal salePrice = rs.getBigDecimal("precio_venta");
+                    String aisle = rs.getString("pasillo");
+                    String shelf = rs.getString("estante");
+                    int statusId= rs.getInt("id_estado");
+                    
+                    InventoryLot lot= new InventoryLot(lotId, lotNumber, productId, supplierId, entryDate, expirationDate, initialQuantity, quantity, purchasePrice, salePrice, aisle, shelf, statusId);
+                    return lot;
+                }
+            }
+        }
+        return null;
     }
 }
