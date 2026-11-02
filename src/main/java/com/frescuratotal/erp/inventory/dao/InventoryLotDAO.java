@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -76,6 +78,30 @@ public class InventoryLotDAO {
             
             try(ResultSet rs=ps.executeQuery()){
                 if(rs.next()){
+                    return mapInventoryLot(rs);
+                }
+            }
+        }
+        return null;
+    }
+    
+    public List<InventoryLot> findAll()throws SQLException{
+        String sql="SELECT * FROM lotes_inventario ORDER BY id_lote";
+        
+        List<InventoryLot> lots = new ArrayList<>();
+        try(Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement ps= conn.prepareStatement(sql)){
+            
+            try(ResultSet rs= ps.executeQuery()){
+                while(rs.next()){
+                    InventoryLot lot= mapInventoryLot(rs);
+                    lots.add(lot);
+                }
+            }
+        }return lots;
+    }
+    
+    private InventoryLot mapInventoryLot(ResultSet rs)throws SQLException{
                     int lotId = rs.getInt("id_lote");
                     String lotNumber = rs.getString("numero_lote");
                     int productId = rs.getInt("id_producto");
@@ -92,9 +118,5 @@ public class InventoryLotDAO {
                     
                     InventoryLot lot= new InventoryLot(lotId, lotNumber, productId, supplierId, entryDate, expirationDate, initialQuantity, quantity, purchasePrice, salePrice, aisle, shelf, statusId);
                     return lot;
-                }
-            }
-        }
-        return null;
     }
 }
