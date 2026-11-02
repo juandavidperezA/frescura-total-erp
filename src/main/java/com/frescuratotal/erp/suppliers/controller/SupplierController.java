@@ -8,6 +8,7 @@ import com.frescuratotal.erp.suppliers.dao.SupplierDAO;
 import com.frescuratotal.erp.suppliers.dao.SupplierProductDAO;
 import com.frescuratotal.erp.suppliers.model.Supplier;
 import com.frescuratotal.erp.suppliers.model.SupplierProduct;
+import com.frescuratotal.erp.suppliers.model.SupplierProductDetail;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -54,13 +55,13 @@ public class SupplierController {
         return inserted;
     }
 
-    public List<SupplierProduct> findProductsBySupplierId(int supplierId)throws SQLException{
-        List<SupplierProduct> supplierProducts= supplierProductDAO.findProductsBySupplierId(supplierId);
+    public List<SupplierProductDetail> findProductsBySupplierId(int supplierId)throws SQLException{
+        List<SupplierProductDetail> supplierProducts= supplierProductDAO.findProductsBySupplierId(supplierId);
         return supplierProducts;
     }
 
-    public List<SupplierProduct> findSuppliersByProductId(int productId)throws SQLException{
-        List<SupplierProduct> supplierProducts= supplierProductDAO.findSuppliersByProductId(productId);
+    public List<SupplierProductDetail> findSuppliersByProductId(int productId)throws SQLException{
+        List<SupplierProductDetail> supplierProducts= supplierProductDAO.findSuppliersByProductId(productId);
         return supplierProducts;
     }
 }

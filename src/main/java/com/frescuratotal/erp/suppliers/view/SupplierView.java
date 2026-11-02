@@ -8,6 +8,7 @@ import com.frescuratotal.erp.suppliers.controller.SupplierController;
 import com.frescuratotal.erp.suppliers.dao.SupplierProductDAO;
 import com.frescuratotal.erp.suppliers.model.Supplier;
 import com.frescuratotal.erp.suppliers.model.SupplierProduct;
+import com.frescuratotal.erp.suppliers.model.SupplierProductDetail;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -341,13 +342,13 @@ public class SupplierView {
                 }
 
                 try {
-                    List<SupplierProduct> supplierProducts = control.findProductsBySupplierId(searchSupplierId);
+                    List<SupplierProductDetail> supplierProducts = control.findProductsBySupplierId(searchSupplierId);
                     if(supplierProducts.isEmpty()){
                         System.out.println("No products associated with this supplier.");
                         break;
                     }
-                    for(SupplierProduct supplierpro: supplierProducts){
-                        System.out.println("Product ID: "+supplierpro.getProductId());
+                    for(SupplierProductDetail supplierpro: supplierProducts){
+                        System.out.println("Product ID: "+supplierpro.getProductId()+" | Product name: "+supplierpro.getProductName());
                     }
                 } catch (SQLException e) {
                     System.out.println("error listing supplier products: "+e.getMessage());
@@ -368,13 +369,13 @@ public class SupplierView {
                     break;
                 }
                 try {
-                    List<SupplierProduct> productsSupplier= control.findSuppliersByProductId(searchProductId);
+                    List<SupplierProductDetail> productsSupplier= control.findSuppliersByProductId(searchProductId);
                     if(productsSupplier.isEmpty()){
                         System.out.println("No supplier associated with this product");
                         break;
                     }
-                    for(SupplierProduct proSupplier : productsSupplier){
-                        System.out.println("Supplier ID: "+ proSupplier.getSupplierId());
+                    for(SupplierProductDetail proSupplier : productsSupplier){
+                        System.out.println("Supplier ID: "+ proSupplier.getSupplierId()+" | Supplier name: "+proSupplier.getSupplierName());
                     }
                 } catch (SQLException e) {
                     System.out.println("error listing product suppliers: "+e.getMessage());

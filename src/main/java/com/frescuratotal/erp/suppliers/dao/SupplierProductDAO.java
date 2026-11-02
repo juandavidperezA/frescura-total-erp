@@ -6,11 +6,11 @@ package com.frescuratotal.erp.suppliers.dao;
 
 import com.frescuratotal.erp.config.DatabaseConnection;
 import com.frescuratotal.erp.suppliers.model.SupplierProduct;
+import com.frescuratotal.erp.suppliers.model.SupplierProductDetail;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,15 +45,27 @@ public class SupplierProductDAO {
         }
     }
 
-    public List<SupplierProduct> findProductsBySupplierId(int supplierId) throws SQLException {
+    public List<SupplierProductDetail> findProductsBySupplierId(int supplierId) throws SQLException {
 
         if (supplierId <= 0) {
             throw new SQLException("Supplier ID must be positive");
         }
 
-        String sql="SELECT id_proveedor, id_producto FROM productos_proveedor WHERE id_proveedor= ? ";
+        String sql="""
+                   SELECT
+                       pp.id_proveedor,
+                       s.nombre AS supplier_name,
+                       pp.id_producto,
+                       p.nombre AS product_name
+                   FROM productos_proveedor pp
+                   INNER JOIN proveedores s
+                       ON pp.id_proveedor = s.id_proveedor
+                   INNER JOIN productos p
+                       ON pp.id_producto = p.id_producto
+                   WHERE pp.id_proveedor = ?;
+                   """;
 
-        List<SupplierProduct> supplierProducts = new ArrayList<>();
+        List<SupplierProductDetail> supplierProducts = new ArrayList<>();
 
         try(Connection conn= DatabaseConnection.getConnection();
             PreparedStatement ps= conn.prepareStatement(sql)){
@@ -62,22 +74,36 @@ public class SupplierProductDAO {
             ResultSet rs=ps.executeQuery();
            while(rs.next()){
                int supplierIdResult = rs.getInt("id_proveedor");
+               String supplierNameResult= rs.getString("supplier_name");
                int productIdResult = rs.getInt("id_producto");
-               SupplierProduct supplierProduct = new SupplierProduct(supplierIdResult, productIdResult);
+               String productNameResult= rs.getString("product_name");
+               SupplierProductDetail supplierProduct = new SupplierProductDetail(supplierIdResult, supplierNameResult, productIdResult, productNameResult);
                supplierProducts.add(supplierProduct);
            }
         }
         return supplierProducts;
     }
 
-    public List<SupplierProduct> findSuppliersByProductId(int productId)throws SQLException{
+    public List<SupplierProductDetail> findSuppliersByProductId(int productId)throws SQLException{
             if (productId <= 0) {
                 throw new SQLException("Product ID must be positive");
             }
 
-        String sql="SELECT id_proveedor, id_producto FROM productos_proveedor WHERE id_producto= ? ";
+        String sql="""
+                   SELECT
+                       pp.id_proveedor,
+                       s.nombre AS supplier_name,
+                       pp.id_producto,
+                       p.nombre AS product_name
+                   FROM productos_proveedor pp
+                   INNER JOIN proveedores s
+                       ON pp.id_proveedor = s.id_proveedor
+                   INNER JOIN productos p
+                       ON pp.id_producto = p.id_producto
+                   WHERE pp.id_producto = ?;
+                   """;
 
-        List<SupplierProduct> supplierProducts = new ArrayList<>();
+        List<SupplierProductDetail> supplierProducts = new ArrayList<>();
 
         try(Connection conn= DatabaseConnection.getConnection();
             PreparedStatement ps= conn.prepareStatement(sql)){
@@ -86,8 +112,10 @@ public class SupplierProductDAO {
             ResultSet rs= ps.executeQuery();
             while(rs.next()){
                int supplierIdResult = rs.getInt("id_proveedor");
+               String supplierNammeResult= rs.getString("supplier_name");
                int productIdResult = rs.getInt("id_producto");
-               SupplierProduct supplierProduct = new SupplierProduct(supplierIdResult, productIdResult);
+               String productNameResult  = rs.getString("product_name");
+               SupplierProductDetail supplierProduct = new SupplierProductDetail(supplierIdResult, supplierNammeResult, productIdResult, productNameResult);
                supplierProducts.add(supplierProduct);
             }
         }
