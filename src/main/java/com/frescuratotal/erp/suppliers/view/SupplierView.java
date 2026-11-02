@@ -5,7 +5,9 @@
 package com.frescuratotal.erp.suppliers.view;
 
 import com.frescuratotal.erp.suppliers.controller.SupplierController;
+import com.frescuratotal.erp.suppliers.dao.SupplierProductDAO;
 import com.frescuratotal.erp.suppliers.model.Supplier;
+import com.frescuratotal.erp.suppliers.model.SupplierProduct;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +33,10 @@ public class SupplierView {
         System.out.println("3. Find supplier by ID");
         System.out.println("4. Update supplier");
         System.out.println("5. Activate/Deactivate supplier");
-        System.out.println("6. Return to main menu");
+        System.out.println("6. Associate product with supplier");
+        System.out.println("7. List products by supplier");
+        System.out.println("8. List suppliers by product");
+        System.out.println("9. Return to main menu");
         System.out.println("Please choose an option: ");
         System.out.println("----------------------------------------------");        
     }
@@ -284,13 +289,105 @@ public class SupplierView {
                    }                
                 break;
             case 6:
+                System.out.println("Enter supplier ID: ");
+                while(!sc.hasNextInt()){
+                    System.out.println("Invalid ID. Only numbers.");
+                    sc.next();
+                    System.out.println("Enter supplier ID: ");
+                }
+                int associationSupplierId =sc.nextInt();
+                if(associationSupplierId <=0){
+                    System.out.println("ID must be positive.");
+                    break;
+                }
+
+                System.out.println("Enter product ID: ");
+                while(!sc.hasNextInt()){
+                    System.out.println("Invalid ID. Only numbers.");
+                    sc.next();
+                    System.out.println("Enter product ID: ");
+                }
+                int associationProductId =sc.nextInt();
+                if(associationProductId <=0){
+                    System.out.println("ID must be positive.");
+                    break;
+                }
+                SupplierProduct supplierProduct= new SupplierProduct(associationSupplierId, associationProductId);
+                try {
+                    boolean inserted = control.associateSupplierProduct(supplierProduct);
+                        if (inserted) {
+                            System.out.println("Product associated successfully.");
+                        } else {
+                            System.out.println("Product could not be associated.");
+                        }
+                } catch (SQLException e) {
+                    System.out.println("error: "+e.getMessage());
+                }
+                break;
+            case 7:
+                System.out.println("Enter supplier ID:");
+
+                while (!sc.hasNextInt()) {
+                    System.out.println("Invalid ID. Only numbers.");
+                    sc.next();
+                    System.out.println("Enter supplier ID:");
+                }
+
+                int searchSupplierId = sc.nextInt();
+
+                if (searchSupplierId <= 0) {
+                    System.out.println("Supplier ID must be positive.");
+                    break;
+                }
+
+                try {
+                    List<SupplierProduct> supplierProducts = control.findProductsBySupplierId(searchSupplierId);
+                    if(supplierProducts.isEmpty()){
+                        System.out.println("No products associated with this supplier.");
+                        break;
+                    }
+                    for(SupplierProduct supplierpro: supplierProducts){
+                        System.out.println("Product ID: "+supplierpro.getProductId());
+                    }
+                } catch (SQLException e) {
+                    System.out.println("error listing supplier products: "+e.getMessage());
+                }
+
+                break;
+            case 8:
+                System.out.println("Enter product ID:");
+                while(!sc.hasNextInt()){
+                    System.out.println("Invalid ID. Only numbers.");
+                    sc.next();
+                    System.out.println("Enter product ID:");
+                }
+                int searchProductId= sc.nextInt();
+
+                if(searchProductId<=0){
+                    System.out.println("Product ID must be positive.");
+                    break;
+                }
+                try {
+                    List<SupplierProduct> productsSupplier= control.findSuppliersByProductId(searchProductId);
+                    if(productsSupplier.isEmpty()){
+                        System.out.println("No supplier associated with this product");
+                        break;
+                    }
+                    for(SupplierProduct proSupplier : productsSupplier){
+                        System.out.println("Supplier ID: "+ proSupplier.getSupplierId());
+                    }
+                } catch (SQLException e) {
+                    System.out.println("error listing product suppliers: "+e.getMessage());
+                }
+                break;
+            case 9:
                 System.out.println("Returning to main menu...");
                 break;
             default:
                 System.out.println("Invalid option. Please try again.");
                 break;
         }
-    }while(option!=6);
+    }while(option!=9);
     }
     
 }

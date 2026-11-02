@@ -5,7 +5,9 @@
 package com.frescuratotal.erp.suppliers.controller;
 
 import com.frescuratotal.erp.suppliers.dao.SupplierDAO;
+import com.frescuratotal.erp.suppliers.dao.SupplierProductDAO;
 import com.frescuratotal.erp.suppliers.model.Supplier;
+import com.frescuratotal.erp.suppliers.model.SupplierProduct;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -15,9 +17,11 @@ import java.util.List;
  */
 public class SupplierController {
     private SupplierDAO dao;
+    private SupplierProductDAO supplierProductDAO ;
     
-    public SupplierController(SupplierDAO pDao){
+    public SupplierController(SupplierDAO pDao, SupplierProductDAO pSupplierProductDAO){
         dao=pDao;
+        supplierProductDAO= pSupplierProductDAO;
     }
     
     public Supplier findSupplierById(int id)throws SQLException{
@@ -43,5 +47,20 @@ public class SupplierController {
     public int setSupplierActive(int id, boolean active) throws SQLException{
         int activesupplier= dao.setSupplierActive(id, active);
         return activesupplier;
+    }
+
+    public boolean associateSupplierProduct(SupplierProduct supplierProduct)throws SQLException{
+        boolean inserted= supplierProductDAO.insertSupplierProduct(supplierProduct);
+        return inserted;
+    }
+
+    public List<SupplierProduct> findProductsBySupplierId(int supplierId)throws SQLException{
+        List<SupplierProduct> supplierProducts= supplierProductDAO.findProductsBySupplierId(supplierId);
+        return supplierProducts;
+    }
+
+    public List<SupplierProduct> findSuppliersByProductId(int productId)throws SQLException{
+        List<SupplierProduct> supplierProducts= supplierProductDAO.findSuppliersByProductId(productId);
+        return supplierProducts;
     }
 }
