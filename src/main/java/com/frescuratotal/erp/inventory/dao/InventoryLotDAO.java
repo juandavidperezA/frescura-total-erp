@@ -101,6 +101,28 @@ public class InventoryLotDAO {
         }return lots;
     }
     
+        public List<InventoryLot> findByProductId(int productId) throws SQLException{
+        if(productId<=0){
+            throw new SQLException("Product ID must be positive");
+        }
+        
+        String sql="SELECT * FROM lotes_inventario WHERE id_producto=? ORDER BY fecha_vencimiento ASC";
+        List<InventoryLot> lots= new ArrayList<>();
+        
+        try(Connection conn= DatabaseConnection.getConnection();
+            PreparedStatement ps= conn.prepareStatement(sql)){
+            ps.setInt(1, productId);
+            
+            try(ResultSet rs= ps.executeQuery()){
+                while(rs.next()){
+                    InventoryLot lot = mapInventoryLot(rs);
+                    lots.add(lot);
+                }
+            }
+        }return lots;
+    }
+
+    
     private InventoryLot mapInventoryLot(ResultSet rs)throws SQLException{
                     int lotId = rs.getInt("id_lote");
                     String lotNumber = rs.getString("numero_lote");
