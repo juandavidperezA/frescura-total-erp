@@ -1,6 +1,7 @@
 package sales.model;
 
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 
 public class Customer {
 
@@ -11,11 +12,11 @@ public class Customer {
     private String phone;
     private String address;
     private int typeId;
-    private LocalDate registrationDate;
+    private LocalDateTime registrationDate;
 
     public Customer(int id, String name, String document, String email,
                     String phone, String address, int typeId,
-                    LocalDate registrationDate) {
+                    LocalDateTime registrationDate) {
         this.id = id;
         this.name = name;
         this.document = document;
@@ -54,7 +55,7 @@ public class Customer {
         return typeId;
     }
 
-    public LocalDate getRegistrationDate() {
+    public LocalDateTime getRegistrationDate() {
         return registrationDate;
     }
 
@@ -86,7 +87,7 @@ public class Customer {
         this.typeId = typeId;
     }
 
-    public void setRegistrationDate(LocalDate registrationDate) {
+    public void setRegistrationDate(LocalDateTime registrationDate) {
         this.registrationDate = registrationDate;
     }
 }
