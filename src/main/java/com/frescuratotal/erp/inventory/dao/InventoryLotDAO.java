@@ -122,6 +122,28 @@ public class InventoryLotDAO {
         }return lots;
     }
 
+        public int updateExpirationStatuses()throws SQLException{
+            String sql= """
+                        UPDATE lotes_inventario
+                             SET id_estado = CASE
+                                 WHEN fecha_vencimiento < CURDATE() THEN 3
+                                 WHEN fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 7 DAY) THEN 2
+                                 ELSE 1
+                             END
+                             WHERE id_estado <> 4
+                               AND id_estado <> CASE
+                                   WHEN fecha_vencimiento < CURDATE() THEN 3
+                                   WHEN fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 7 DAY) THEN 2
+                                   ELSE 1
+                             END
+                        """;
+            
+            try(Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement ps= conn.prepareStatement(sql)){
+                int affectedRows= ps.executeUpdate();
+                return affectedRows;
+            }
+        }
     
     private InventoryLot mapInventoryLot(ResultSet rs)throws SQLException{
                     int lotId = rs.getInt("id_lote");
