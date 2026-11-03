@@ -146,7 +146,33 @@ public class InventoryLotDAO {
                 return affectedRows;
             }
         }
-    
+        
+        public int decreaseQuantity(int lotId,BigDecimal quantity)throws SQLException{
+            if(lotId<=0){
+                throw new SQLException("Lot ID must be positive");
+            }
+            
+            if(quantity==null || quantity.compareTo(BigDecimal.ZERO)<=0){
+                throw new SQLException("Quantity must be greater than zero");
+            }
+            String sql="""
+                       UPDATE lotes_inventario
+                       SET cantidad = cantidad - ?
+                       WHERE id_lote = ?
+                         AND cantidad >= ?
+                       """;
+            
+            try(Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement ps= conn.prepareStatement(sql)){
+                ps.setBigDecimal(1, quantity);
+                ps.setInt(2, lotId);
+                ps.setBigDecimal(3, quantity);
+                
+                int affectedRows= ps.executeUpdate();
+                return affectedRows;
+            }
+        }
+        
     private InventoryLot mapInventoryLot(ResultSet rs)throws SQLException{
                     int lotId = rs.getInt("id_lote");
                     String lotNumber = rs.getString("numero_lote");
