@@ -1,95 +1,92 @@
-
 package sales.model;
 
 import java.time.LocalDate;
 
-
 public class Customer {
-    
-    private int Id;
-    private String nombre;
-    private String documento;
-    private String email;
-    private String telefono;
-    private String direccion;
-    private int idTipo;
-    private LocalDate fechaRegistro;
 
-    public Customer(int Id, String nombre, String documento, String email, String telefono, String direccion, int idTipo, LocalDate fechaRegistro) {
-        this.Id = Id;
-        this.nombre = nombre;
-        this.documento = documento;
+    private int id;
+    private String name;
+    private String document;
+    private String email;
+    private String phone;
+    private String address;
+    private int typeId;
+    private LocalDate registrationDate;
+
+    public Customer(int id, String name, String document, String email,
+                    String phone, String address, int typeId,
+                    LocalDate registrationDate) {
+        this.id = id;
+        this.name = name;
+        this.document = document;
         this.email = email;
-        this.telefono = telefono;
-        this.direccion = direccion;
-        this.idTipo = idTipo;
-        this.fechaRegistro = fechaRegistro;
+        this.phone = phone;
+        this.address = address;
+        this.typeId = typeId;
+        this.registrationDate = registrationDate;
     }
 
     public int getId() {
-        return Id;
+        return id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getName() {
+        return name;
     }
 
-    public String getDocumento() {
-        return documento;
+    public String getDocument() {
+        return document;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public String getTelefono() {
-        return telefono;
+    public String getPhone() {
+        return phone;
     }
 
-    public String getDireccion() {
-        return direccion;
+    public String getAddress() {
+        return address;
     }
 
-    public int getIdTipo() {
-        return idTipo;
+    public int getTypeId() {
+        return typeId;
     }
 
-    public LocalDate getFechaRegistro() {
-        return fechaRegistro;
+    public LocalDate getRegistrationDate() {
+        return registrationDate;
     }
 
-    public void setId(int Id) {
-        this.Id = Id;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setDocumento(String documento) {
-        this.documento = documento;
+    public void setDocument(String document) {
+        this.document = document;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public void setIdTipo(int idTipo) {
-        this.idTipo = idTipo;
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
     }
 
-    public void setFechaRegistro(LocalDate fechaRegistro) {
-        this.fechaRegistro = fechaRegistro;
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
     }
-    
-    
-    
 }
