@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -26,6 +27,7 @@ import java.util.List;
 public class InventoryLotDAO {
     public int insertLot(InventoryLot lot)throws SQLException{
         InventoryLotValidator.validateForInsert(lot);
+        String generatedLotNumber = "LOT-" + UUID.randomUUID();
         String sql="""
                    INSERT INTO lotes_inventario (
                        numero_lote,
@@ -45,7 +47,7 @@ public class InventoryLotDAO {
         
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement ps= conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)){
-            ps.setString(1, lot.getLotNumber());
+            ps.setString(1, generatedLotNumber);
             ps.setInt(2, lot.getProductId());
             ps.setInt(3, lot.getSupplierId());
             ps.setDate(4, Date.valueOf(lot.getExpirationDate()));

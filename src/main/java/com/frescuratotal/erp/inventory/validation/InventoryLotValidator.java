@@ -19,14 +19,6 @@ public class InventoryLotValidator {
             throw new SQLException("Inventory lot cannot be null");
         }
         
-        if(lot.getLotNumber() ==null || lot.getLotNumber().isBlank()){
-            throw new SQLException("Lot number cannot be null or blank");
-        }
-        
-        if(lot.getLotNumber().length()>50){
-            throw new SQLException("Lot number cannot exceed 50 characters");
-        }
-        
         if(lot.getProductId()<=0 || lot.getSupplierId()<=0 || lot.getStatusId()<=0){
             throw new SQLException("Product, supplier and status IDs must be positive");
         }
