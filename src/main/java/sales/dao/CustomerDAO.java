@@ -116,4 +116,29 @@ public class CustomerDAO {
 
         return customers;
     }
+    
+    public int updateCustomer(Customer customer) throws SQLException {
+    CustomerValidator.validate(customer);
+
+    if (customer.getId() <= 0) {
+        throw new SQLException("Customer ID must be positive");
+    }
+
+    String sql = "UPDATE clientes SET nombre=?, documento=?, email=?, telefono=?, direccion=?, id_tipo=? WHERE id_cliente=?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, customer.getName());
+        ps.setString(2, customer.getDocument());
+        ps.setString(3, customer.getEmail());
+        ps.setString(4, customer.getPhone());
+        ps.setString(5, customer.getAddress());
+        ps.setInt(6, customer.getTypeId());
+        ps.setInt(7, customer.getId());
+
+        int affectedRows = ps.executeUpdate();
+        return affectedRows;
+    }
+}
 }
