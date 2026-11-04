@@ -6,8 +6,8 @@
 
 ## Autores
 
-- **[Nombre completo del primer estudiante]**
-- **[Nombre completo del segundo estudiante]**
+- **[Brayan Steven RIaño Fuentes]**
+- **[Juan David Perez Anaya]**
 
 > Reemplazar los campos anteriores por los nombres completos antes de la entrega.
 
