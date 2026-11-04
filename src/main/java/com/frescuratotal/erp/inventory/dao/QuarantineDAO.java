@@ -6,11 +6,15 @@ package com.frescuratotal.erp.inventory.dao;
 
 import com.frescuratotal.erp.config.DatabaseConnection;
 import com.frescuratotal.erp.inventory.model.QuarantineRecord;
+import com.mysql.cj.MysqlType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -93,4 +97,27 @@ public class QuarantineDAO {
         }
     }
     
+    public List<QuarantineRecord> findActiveQuarantines()throws SQLException{
+        String sql="SELECT * FROM registro_cuarentena WHERE resuelta = 0";
+        List<QuarantineRecord> quarantines =new ArrayList<>();
+        
+        try(Connection conn= DatabaseConnection.getConnection();
+            PreparedStatement ps= conn.prepareStatement(sql)){
+            
+            try(ResultSet rs= ps.executeQuery()){
+                while(rs.next()){
+                    int id=rs.getInt("id_registro");
+                    int lotId=rs.getInt("id_lote");
+                    String reason= rs.getString("motivo");
+                    String user=rs.getString("usuario");
+                    LocalDateTime registrationDate=rs.getObject("fecha_registro",LocalDateTime.class );
+                    boolean resolved = rs.getBoolean("resuelta");
+                    LocalDateTime resolutionDate= rs.getObject("fecha_resolucion", LocalDateTime.class);
+                    String resolutionNotes= rs.getString("notas_resolucion");
+                    QuarantineRecord record= new QuarantineRecord(id, lotId, reason, user, registrationDate, resolved, resolutionDate, resolutionNotes);
+                    quarantines.add(record);
+                }
+            }
+        }return quarantines;
+    }
 }
