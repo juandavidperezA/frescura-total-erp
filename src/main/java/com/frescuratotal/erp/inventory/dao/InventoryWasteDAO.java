@@ -12,6 +12,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -87,4 +90,53 @@ public class InventoryWasteDAO {
         }
         }
     }
+    
+    public List<InventoryWaste> findByLotId(int lotId) throws SQLException {
+
+    if (lotId <= 0) {
+        throw new IllegalArgumentException("Lot ID must be positive");
+    }
+
+    String sql = "SELECT * FROM registro_mermas WHERE id_lote = ?";
+        List<InventoryWaste> wastes = new ArrayList<>();
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, lotId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                int id = rs.getInt("id_registro");
+                int lotIdFromDb = rs.getInt("id_lote");
+
+                Integer inspectionId = rs.getObject("id_inspeccion", Integer.class);
+
+                BigDecimal lostQuantity = rs.getBigDecimal("cantidad_perdida");
+                String reason = rs.getString("motivo");
+
+                LocalDateTime registrationDate =
+                        rs.getObject("fecha_registro", LocalDateTime.class);
+
+                String user = rs.getString("usuario_registro");
+
+                InventoryWaste waste = new InventoryWaste(
+                        id,
+                        lotIdFromDb,
+                        inspectionId,
+                        lostQuantity,
+                        reason,
+                        registrationDate,
+                        user
+                );
+
+                wastes.add(waste);
+            }
+        }
+    }
+
+    return wastes;
+}
 }
