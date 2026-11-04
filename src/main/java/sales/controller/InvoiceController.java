@@ -1,13 +1,18 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sales.controller;
 
-/**
- *
- * @author Programacion
- */
+import java.sql.SQLException;
+import sales.dao.InvoiceDAO;
+import sales.model.Invoice;
+
 public class InvoiceController {
-    
+
+    private final InvoiceDAO invoiceDAO = new InvoiceDAO();
+
+    public Invoice createInvoice(int saleId) throws SQLException {
+        return invoiceDAO.createInvoice(saleId);
+    }
+
+    public Invoice findInvoiceBySaleId(int saleId) throws SQLException {
+        return invoiceDAO.findBySaleId(saleId);
+    }
 }
