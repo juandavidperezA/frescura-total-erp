@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
-
+import logging.AppLogger;
 /**
  *
  * @author USUARIO
@@ -56,6 +56,7 @@ public class SupplierView {
     }
     option=sc.nextInt();
     
+    AppLogger.logAction("SUPPLIERS", "Selected option: " + option);
     
         switch (option) {
             case 1:

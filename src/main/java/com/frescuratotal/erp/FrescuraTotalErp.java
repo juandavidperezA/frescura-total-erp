@@ -26,11 +26,12 @@ import logistics.view.DeliveryView;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
+import logging.AppLogger;
 
 public class FrescuraTotalErp {
 
     public static void main(String[] args) {
-
+AppLogger.logAction("MAIN", "ERP application started");
         try (Connection conn = DatabaseConnection.getConnection()) {
             System.out.println("Database connection successful.");
         } catch (SQLException e) {
@@ -87,6 +88,8 @@ public class FrescuraTotalErp {
             option = scanner.nextInt();
             scanner.nextLine();
 
+            AppLogger.logAction("MAIN", "Selected option: " + option);
+            
             switch (option) {
                 case 1:
                     inventoryView.start();

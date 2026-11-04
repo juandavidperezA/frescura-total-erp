@@ -11,6 +11,7 @@ import sales.model.Sale;
 import sales.model.SaleDetail;
 import sales.model.Invoice;
 import sales.service.InvoiceImageGenerator;
+import logging.AppLogger;
 
 public class SaleView {
 
@@ -30,7 +31,9 @@ public class SaleView {
             System.out.println("5. Return");
 
             option = readInt("Select an option: ");
-
+            
+                    AppLogger.logAction("SALES", "Selected option: " + option);
+                    
             try {
                 switch (option) {
 

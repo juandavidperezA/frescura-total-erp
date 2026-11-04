@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Scanner;
 import sales.controller.InvoiceController;
 import sales.model.Invoice;
+import logging.AppLogger;
 
 public class InvoiceView {
 
@@ -30,6 +31,8 @@ public class InvoiceView {
             option = scanner.nextInt();
             scanner.nextLine();
 
+            AppLogger.logAction("INVOICES", "Selected option: " + option);
+            
             try {
                 switch (option) {
 

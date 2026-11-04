@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
+import logging.AppLogger;
 
 /**
  *
@@ -56,6 +57,8 @@ public class InventoryView {
         option = sc.nextInt();
         sc.nextLine();
         
+            AppLogger.logAction("INVENTORY", "Selected option: " + option);
+
             switch (option) {
                 case 1:
                     try {
@@ -336,7 +339,7 @@ public class InventoryView {
                                 System.out.print("Enter result (Aprobado/Rechazado): ");
                                 String result = sc.nextLine().trim();
 
-                                if (!result.equals("Aprobado") && !result.equals("Rechazado")) {
+                                if (!result.equalsIgnoreCase("Aprobado") && !result.equalsIgnoreCase("Rechazado")) {
                                     System.out.println("Invalid inspection result.");
                                     break;
                                 }

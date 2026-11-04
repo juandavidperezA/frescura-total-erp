@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import logistics.controller.DeliveryController;
 import sales.model.Sale;
+import logging.AppLogger;
 
 public class DeliveryView {
 
@@ -38,6 +39,8 @@ public class DeliveryView {
             option = scanner.nextInt();
             scanner.nextLine();
 
+            AppLogger.logAction("LOGISTICS", "Selected option: " + option);
+            
             try {
 
                 switch (option) {
