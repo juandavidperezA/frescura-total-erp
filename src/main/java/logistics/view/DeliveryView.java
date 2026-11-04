@@ -17,13 +17,16 @@ public class DeliveryView {
         int option = 0;
 
         do {
+
             System.out.println("\n========== LOGISTICS MENU ==========");
             System.out.println("1. Prepare sale");
             System.out.println("2. View dispatch panel");
             System.out.println("3. Create delivery route");
             System.out.println("4. Assign vehicle and driver");
             System.out.println("5. Add sale to route");
-            System.out.println("6. Return");
+            System.out.println("6. Start delivery route");
+            System.out.println("7. Complete delivery");
+            System.out.println("8. Return");
             System.out.print("Select an option: ");
 
             if (!scanner.hasNextInt()) {
@@ -40,6 +43,7 @@ public class DeliveryView {
                 switch (option) {
 
                     case 1: {
+
                         System.out.print("Sale ID: ");
                         int saleId = readPositiveInt();
 
@@ -55,6 +59,7 @@ public class DeliveryView {
                     }
 
                     case 2: {
+
                         List<Sale> sales = controller.findSalesInPreparation();
 
                         if (sales.isEmpty()) {
@@ -64,6 +69,7 @@ public class DeliveryView {
                             System.out.println("\n========== DISPATCH PANEL ==========");
 
                             for (Sale sale : sales) {
+
                                 System.out.println("----------------------------");
                                 System.out.println("Sale ID: " + sale.getId());
                                 System.out.println("Sale number: " + sale.getSaleNumber());
@@ -76,6 +82,7 @@ public class DeliveryView {
                     }
 
                     case 3: {
+
                         System.out.print("Route name: ");
                         String routeName = scanner.nextLine().trim();
 
@@ -84,12 +91,18 @@ public class DeliveryView {
 
                         int routeId = controller.createRoute(routeName, username);
 
-                        System.out.println("Route created successfully. ID: " + routeId);
+                        if (routeId > 0) {
+                            System.out.println("Route created successfully.");
+                            System.out.println("Route ID: " + routeId);
+                        } else {
+                            System.out.println("Could not create route.");
+                        }
 
                         break;
                     }
 
                     case 4: {
+
                         System.out.print("Route ID: ");
                         int routeId = readPositiveInt();
 
@@ -99,7 +112,9 @@ public class DeliveryView {
                         System.out.print("Driver ID: ");
                         int driverId = readPositiveInt();
 
-                        int result = controller.assignDelivery(routeId, vehicleId, driverId);
+                        int result = controller.assignDelivery(
+                                routeId, vehicleId, driverId
+                        );
 
                         if (result > 0) {
                             System.out.println("Vehicle and driver assigned successfully.");
@@ -111,6 +126,7 @@ public class DeliveryView {
                     }
 
                     case 5: {
+
                         System.out.print("Route ID: ");
                         int routeId = readPositiveInt();
 
@@ -133,7 +149,42 @@ public class DeliveryView {
                         break;
                     }
 
-                    case 6:
+                    case 6: {
+
+                        System.out.print("Route ID: ");
+                        int routeId = readPositiveInt();
+
+                        int total = controller.startRoute(routeId);
+
+                        System.out.println("Route started successfully.");
+                        System.out.println("Sales in transit: " + total);
+
+                        break;
+                    }
+
+                    case 7: {
+
+                        System.out.print("Route ID: ");
+                        int routeId = readPositiveInt();
+
+                        System.out.print("Sale ID: ");
+                        int saleId = readPositiveInt();
+
+                        System.out.print("Received by: ");
+                        String receivedBy = scanner.nextLine().trim();
+
+                        int result = controller.completeDelivery(
+                                routeId, saleId, receivedBy
+                        );
+
+                        if (result > 0) {
+                            System.out.println("Delivery completed successfully.");
+                        }
+
+                        break;
+                    }
+
+                    case 8:
                         System.out.println("Returning to main menu...");
                         break;
 
@@ -146,7 +197,7 @@ public class DeliveryView {
                 System.out.println("Database error: " + e.getMessage());
             }
 
-        } while (option != 6);
+        } while (option != 8);
     }
 
     private int readPositiveInt() {

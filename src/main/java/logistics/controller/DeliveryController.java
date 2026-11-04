@@ -1,3 +1,4 @@
+
 package logistics.controller;
 
 import java.sql.SQLException;
@@ -17,15 +18,27 @@ public class DeliveryController {
         return deliveryDAO.findSalesInPreparation();
     }
 
-    public int createRoute(String routeName, String username) throws SQLException {
+    public int createRoute(String routeName, String username)
+            throws SQLException {
         return deliveryDAO.createRoute(routeName, username);
     }
 
-    public int assignDelivery(int routeId, int vehicleId, int driverId) throws SQLException {
+    public int assignDelivery(int routeId, int vehicleId, int driverId)
+            throws SQLException {
         return deliveryDAO.assignDelivery(routeId, vehicleId, driverId);
     }
 
-    public int addSaleToRoute(int routeId, int saleId, int deliveryOrder) throws SQLException {
+    public int addSaleToRoute(int routeId, int saleId, int deliveryOrder)
+            throws SQLException {
         return deliveryDAO.addSaleToRoute(routeId, saleId, deliveryOrder);
+    }
+
+    public int startRoute(int routeId) throws SQLException {
+        return deliveryDAO.startRoute(routeId);
+    }
+
+    public int completeDelivery(int routeId, int saleId, String receivedBy)
+            throws SQLException {
+        return deliveryDAO.completeDelivery(routeId, saleId, receivedBy);
     }
 }
