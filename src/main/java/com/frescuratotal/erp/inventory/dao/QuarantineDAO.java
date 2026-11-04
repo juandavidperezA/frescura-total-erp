@@ -120,4 +120,22 @@ public class QuarantineDAO {
             }
         }return quarantines;
     }
+    
+    public boolean resolveQuarantine(int quarantineId, String resolutionNotes)throws SQLException{
+            String sql = """
+                        UPDATE registro_cuarentena
+                        SET resuelta = 1,
+                            fecha_resolucion = CURRENT_TIMESTAMP,
+                            notas_resolucion = ?
+                        WHERE id_registro = ? AND resuelta = 0
+                        """;
+            try(Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement ps= conn.prepareStatement(sql)){
+                ps.setString(1, resolutionNotes);
+                ps.setInt(2, quarantineId);
+                
+                int affectedRows= ps.executeUpdate();
+                return affectedRows==1;
+            }
+    }
 }
