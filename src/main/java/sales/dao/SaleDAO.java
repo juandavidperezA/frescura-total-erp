@@ -169,5 +169,38 @@ public class SaleDAO {
             return affectedRows;
         }
     }
+    
+    public void findAvailableLotsByProduct(int productId) throws SQLException {
+
+    if (productId <= 0) {
+        throw new SQLException("Product ID must be positive");
+    }
+
+    String sql = "SELECT id_lote, numero_lote, cantidad, precio_venta, fecha_vencimiento "
+            + "FROM lotes_inventario "
+            + "WHERE id_producto = ? "
+            + "AND id_estado IN (1, 2) "
+            + "AND fecha_vencimiento >= CURDATE() "
+            + "AND cantidad > 0 "
+            + "ORDER BY fecha_vencimiento ASC";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, productId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                System.out.println("Lot ID: " + rs.getInt("id_lote"));
+                System.out.println("Lot number: " + rs.getString("numero_lote"));
+                System.out.println("Available quantity: " + rs.getDouble("cantidad"));
+                System.out.println("Sale price: " + rs.getDouble("precio_venta"));
+                System.out.println("Expiration date: " + rs.getDate("fecha_vencimiento"));
+                System.out.println("----------------------------");
+            }
+        }
+    }
+}
 }
 
