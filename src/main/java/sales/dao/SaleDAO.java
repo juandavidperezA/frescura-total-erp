@@ -21,19 +21,10 @@ public class SaleDAO {
             throw new SQLException("Sale cannot be null");
         }
 
-        if (sale.getSaleNumber() == null || sale.getSaleNumber().isBlank()) {
-            throw new SQLException("Sale number cannot be empty");
-        }
-
-        if (sale.getCustomerId() <= 0) {
-            throw new SQLException("Customer ID must be positive");
-        }
-
-        if (sale.getStatusId() <= 0) {
-            throw new SQLException("Sale status ID must be positive");
-        }
-
-        String sql = "INSERT INTO ventas (numero_venta, id_cliente, subtotal, total_descuento, total_impuesto, monto_total, id_estado, usuario_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ventas "
+                + "(numero_venta, id_cliente, subtotal, total_descuento, "
+                + "total_impuesto, monto_total, id_estado, usuario_registro) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -71,28 +62,17 @@ public class SaleDAO {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    int saleId = rs.getInt("id_venta");
-                    String saleNumber = rs.getString("numero_venta");
-                    int customerId = rs.getInt("id_cliente");
-                    LocalDateTime saleDate = rs.getObject("fecha_venta", LocalDateTime.class);
-                    double subtotal = rs.getDouble("subtotal");
-                    double totalDiscount = rs.getDouble("total_descuento");
-                    double totalTax = rs.getDouble("total_impuesto");
-                    double totalAmount = rs.getDouble("monto_total");
-                    int statusId = rs.getInt("id_estado");
-                    String registeredBy = rs.getString("usuario_registro");
-
                     return new Sale(
-                            saleId,
-                            saleNumber,
-                            customerId,
-                            saleDate,
-                            subtotal,
-                            totalDiscount,
-                            totalTax,
-                            totalAmount,
-                            statusId,
-                            registeredBy
+                            rs.getInt("id_venta"),
+                            rs.getString("numero_venta"),
+                            rs.getInt("id_cliente"),
+                            rs.getObject("fecha_venta", LocalDateTime.class),
+                            rs.getDouble("subtotal"),
+                            rs.getDouble("total_descuento"),
+                            rs.getDouble("total_impuesto"),
+                            rs.getDouble("monto_total"),
+                            rs.getInt("id_estado"),
+                            rs.getString("usuario_registro")
                     );
                 }
             }
@@ -103,8 +83,8 @@ public class SaleDAO {
 
     public List<Sale> findAll() throws SQLException {
 
-        String sql = "SELECT * FROM ventas";
         List<Sale> sales = new ArrayList<>();
+        String sql = "SELECT * FROM ventas ORDER BY fecha_venta DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -135,7 +115,7 @@ public class SaleDAO {
     public int updateSaleStatus(int saleId, int statusId) throws SQLException {
 
         if (saleId <= 0 || statusId <= 0) {
-            throw new SQLException("Sale ID and status ID must be positive");
+            throw new SQLException("Invalid sale or status ID");
         }
 
         String sql = "UPDATE ventas SET id_estado = ? WHERE id_venta = ?";
@@ -156,13 +136,15 @@ public class SaleDAO {
             throw new SQLException("Product ID must be positive");
         }
 
-        String sql = "SELECT id_lote, numero_lote, cantidad, precio_venta, fecha_vencimiento, id_estado "
-                + "FROM lotes_inventario "
-                + "WHERE id_producto = ? "
-                + "AND id_estado IN (1, 2) "
-                + "AND fecha_vencimiento >= CURDATE() "
-                + "AND cantidad > 0 "
-                + "ORDER BY fecha_vencimiento ASC, id_lote ASC";
+        String sql = "SELECT l.id_lote, l.numero_lote, l.cantidad, "
+                + "l.precio_venta, l.fecha_vencimiento, e.nombre AS estado "
+                + "FROM lotes_inventario l "
+                + "JOIN estados_lote e ON l.id_estado = e.id_estado "
+                + "WHERE l.id_producto = ? "
+                + "AND e.nombre IN ('Disponible', 'Proximo a Vencer') "
+                + "AND l.fecha_vencimiento >= CURDATE() "
+                + "AND l.cantidad > 0 "
+                + "ORDER BY l.fecha_vencimiento ASC, l.id_lote ASC";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -171,17 +153,60 @@ public class SaleDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
 
+                boolean found = false;
+
                 while (rs.next()) {
+
+                    found = true;
+
                     System.out.println("----------------------------");
                     System.out.println("Lot ID: " + rs.getInt("id_lote"));
                     System.out.println("Lot number: " + rs.getString("numero_lote"));
-                    System.out.println("Available quantity: " + rs.getDouble("cantidad"));
-                    System.out.println("Sale price: " + rs.getDouble("precio_venta"));
-                    System.out.println("Expiration date: " + rs.getDate("fecha_vencimiento"));
-                    System.out.println("Status ID: " + rs.getInt("id_estado"));
+                    System.out.println("Quantity: " + rs.getDouble("cantidad"));
+                    System.out.println("Price: " + rs.getDouble("precio_venta"));
+                    System.out.println("Expiration: " + rs.getDate("fecha_vencimiento"));
+                    System.out.println("Status: " + rs.getString("estado"));
+                }
+
+                if (!found) {
+                    System.out.println("No available lots found.");
                 }
             }
         }
+    }
+
+    private double findDiscount(Connection conn, int statusId,
+                                int categoryId) throws SQLException {
+
+        String sql = "SELECT tasa_descuento FROM promociones "
+                + "WHERE activa = TRUE "
+                + "AND (aplica_estado_lote IS NULL OR aplica_estado_lote = ?) "
+                + "AND (aplica_categoria_producto IS NULL OR aplica_categoria_producto = ?) "
+                + "AND (fecha_inicio IS NULL OR fecha_inicio <= CURDATE()) "
+                + "AND (fecha_fin IS NULL OR fecha_fin >= CURDATE()) "
+                + "ORDER BY tasa_descuento DESC LIMIT 1";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, statusId);
+            ps.setInt(2, categoryId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    double rate = rs.getDouble("tasa_descuento");
+
+                    if (rate < 0 || rate > 1) {
+                        throw new SQLException("Invalid discount rate");
+                    }
+
+                    return rate;
+                }
+            }
+        }
+
+        return 0;
     }
 
     public int confirmSale(Sale sale, List<SaleDetail> details) throws SQLException {
@@ -190,73 +215,179 @@ public class SaleDAO {
             throw new SQLException("Sale cannot be null");
         }
 
-        if (sale.getSaleNumber() == null || sale.getSaleNumber().isBlank()) {
-            throw new SQLException("Sale number cannot be empty");
+        if (sale.getSaleNumber() == null
+                || sale.getSaleNumber().isBlank()
+                || sale.getSaleNumber().length() > 50) {
+            throw new SQLException("Invalid sale number");
         }
 
         if (sale.getCustomerId() <= 0) {
-            throw new SQLException("Customer ID must be positive");
+            throw new SQLException("Invalid customer ID");
         }
 
         if (details == null || details.isEmpty()) {
-            throw new SQLException("Sale must contain at least one product");
+            throw new SQLException("Sale must contain products");
         }
-
-        if (sale.getStatusId() != 1) {
-            throw new SQLException("New sale must have Registered status");
-        }
-
-        double subtotal = 0;
-        double totalDiscount = 0;
-        double totalTax = 0;
-        double totalAmount = 0;
 
         for (SaleDetail detail : details) {
 
-            if (detail == null) {
-                throw new SQLException("Sale detail cannot be null");
+            if (detail == null || detail.getLotId() <= 0) {
+                throw new SQLException("Invalid sale detail");
             }
 
-            if (detail.getLotId() <= 0 || detail.getQuantitySold() <= 0) {
-                throw new SQLException("Invalid lot ID or quantity");
+            if (!Double.isFinite(detail.getQuantitySold())
+                    || detail.getQuantitySold() <= 0) {
+                throw new SQLException("Invalid quantity");
             }
 
-            if (detail.getUnitPrice() < 0
-                    || detail.getDiscountAmount() < 0
-                    || detail.getTaxAmount() < 0) {
-                throw new SQLException("Sale amounts cannot be negative");
+            if (Math.abs(detail.getQuantitySold() * 100
+                    - Math.rint(detail.getQuantitySold() * 100)) > 0.000001) {
+                throw new SQLException("Quantity must have at most two decimals");
             }
-
-            subtotal += detail.getSubtotal();
-            totalDiscount += detail.getDiscountAmount();
-            totalTax += detail.getTaxAmount();
-            totalAmount += detail.getLineTotal();
         }
 
-        sale.setSubtotal(subtotal);
-        sale.setTotalDiscount(totalDiscount);
-        sale.setTotalTax(totalTax);
-        sale.setTotalAmount(totalAmount);
+        String lotSql = "SELECT l.id_lote, l.cantidad, l.precio_venta, "
+                + "l.id_estado, e.nombre AS estado, p.id_categoria "
+                + "FROM lotes_inventario l "
+                + "JOIN estados_lote e ON l.id_estado = e.id_estado "
+                + "JOIN productos p ON l.id_producto = p.id_producto "
+                + "WHERE l.id_producto = ("
+                + "SELECT id_producto FROM lotes_inventario WHERE id_lote = ?) "
+                + "AND e.nombre IN ('Disponible', 'Proximo a Vencer') "
+                + "AND l.fecha_vencimiento >= CURDATE() "
+                + "AND l.cantidad > 0 "
+                + "ORDER BY l.fecha_vencimiento ASC, l.id_lote ASC "
+                + "LIMIT 1 FOR UPDATE";
 
-        String saleSql = "INSERT INTO ventas (numero_venta, id_cliente, subtotal, total_descuento, total_impuesto, monto_total, id_estado, usuario_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        String lotSql = "UPDATE lotes_inventario "
+        String updateSql = "UPDATE lotes_inventario "
                 + "SET cantidad = cantidad - ? "
-                + "WHERE id_lote = ? "
-                + "AND cantidad >= ? "
-                + "AND id_estado IN (1, 2) "
-                + "AND fecha_vencimiento >= CURDATE()";
+                + "WHERE id_lote = ? AND cantidad >= ?";
 
-        String detailSql = "INSERT INTO detalles_venta (id_venta, id_lote, cantidad_vendida, precio_unitario, descuento_aplicado, monto_descuento, tasa_impuesto, monto_impuesto, subtotal, total_linea) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String saleSql = "INSERT INTO ventas "
+                + "(numero_venta, id_cliente, subtotal, total_descuento, "
+                + "total_impuesto, monto_total, id_estado, usuario_registro) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        String detailSql = "INSERT INTO detalles_venta "
+                + "(id_venta, id_lote, cantidad_vendida, precio_unitario, "
+                + "descuento_aplicado, monto_descuento, tasa_impuesto, "
+                + "monto_impuesto, subtotal, total_linea) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        String statusSql = "SELECT id_estado FROM estados_venta "
+                + "WHERE nombre = 'Registrada'";
 
         try (Connection conn = DatabaseConnection.getConnection()) {
 
             conn.setAutoCommit(false);
 
             try {
+
+                int registeredStatus;
+
+                try (PreparedStatement ps = conn.prepareStatement(statusSql);
+                     ResultSet rs = ps.executeQuery()) {
+
+                    if (!rs.next()) {
+                        throw new SQLException("Registered status not found");
+                    }
+
+                    registeredStatus = rs.getInt("id_estado");
+                }
+
+                double subtotal = 0;
+                double totalDiscount = 0;
+                double totalTax = 0;
+                double totalAmount = 0;
+
+                for (SaleDetail detail : details) {
+
+                    try (PreparedStatement ps = conn.prepareStatement(lotSql)) {
+
+                        ps.setInt(1, detail.getLotId());
+
+                        try (ResultSet rs = ps.executeQuery()) {
+
+                            if (!rs.next()) {
+                                throw new SQLException("No available lot found");
+                            }
+
+                            int firstLotId = rs.getInt("id_lote");
+
+                            if (firstLotId != detail.getLotId()) {
+                                throw new SQLException("Select the first FEFO lot: " + firstLotId);
+                            }
+
+                            double stock = rs.getDouble("cantidad");
+                            double price = rs.getDouble("precio_venta");
+                            int statusId = rs.getInt("id_estado");
+                            int categoryId = rs.getInt("id_categoria");
+                            String status = rs.getString("estado");
+
+                            if (stock < detail.getQuantitySold()) {
+                                throw new SQLException("Insufficient stock in lot: " + firstLotId);
+                            }
+
+                            if (!Double.isFinite(price) || price < 0) {
+                                throw new SQLException("Invalid lot price");
+                            }
+
+                            double discountRate = 0;
+
+                            if (status.equals("Proximo a Vencer")) {
+                                discountRate = findDiscount(conn, statusId, categoryId);
+                            }
+
+                            double lineSubtotal = Math.round(
+                                    detail.getQuantitySold() * price * 100.0
+                            ) / 100.0;
+
+                            double discountAmount = Math.round(
+                                    lineSubtotal * discountRate * 100.0
+                            ) / 100.0;
+
+                            double taxRate = 0;
+                            double taxAmount = 0;
+
+                            double lineTotal = lineSubtotal - discountAmount;
+
+                            detail.setUnitPrice(price);
+                            detail.setDiscountApplied(discountRate);
+                            detail.setDiscountAmount(discountAmount);
+                            detail.setTaxRate(taxRate);
+                            detail.setTaxAmount(taxAmount);
+                            detail.setSubtotal(lineSubtotal);
+                            detail.setLineTotal(lineTotal);
+
+                            subtotal += lineSubtotal;
+                            totalDiscount += discountAmount;
+                            totalTax += taxAmount;
+                            totalAmount += lineTotal;
+                        }
+                    }
+
+                    try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+
+                        ps.setDouble(1, detail.getQuantitySold());
+                        ps.setInt(2, detail.getLotId());
+                        ps.setDouble(3, detail.getQuantitySold());
+
+                        if (ps.executeUpdate() != 1) {
+                            throw new SQLException("Could not update inventory");
+                        }
+                    }
+                }
+
+                sale.setSubtotal(Math.round(subtotal * 100.0) / 100.0);
+                sale.setTotalDiscount(Math.round(totalDiscount * 100.0) / 100.0);
+                sale.setTotalTax(Math.round(totalTax * 100.0) / 100.0);
+                sale.setTotalAmount(Math.round(totalAmount * 100.0) / 100.0);
+                sale.setStatusId(registeredStatus);
+
                 int saleId;
 
-                try (PreparedStatement ps = conn.prepareStatement(saleSql, Statement.RETURN_GENERATED_KEYS)) {
+                try (PreparedStatement ps = conn.prepareStatement(
+                        saleSql, Statement.RETURN_GENERATED_KEYS)) {
 
                     ps.setString(1, sale.getSaleNumber());
                     ps.setInt(2, sale.getCustomerId());
@@ -281,19 +412,6 @@ public class SaleDAO {
 
                 for (SaleDetail detail : details) {
 
-                    try (PreparedStatement ps = conn.prepareStatement(lotSql)) {
-
-                        ps.setDouble(1, detail.getQuantitySold());
-                        ps.setInt(2, detail.getLotId());
-                        ps.setDouble(3, detail.getQuantitySold());
-
-                        int affectedRows = ps.executeUpdate();
-
-                        if (affectedRows == 0) {
-                            throw new SQLException("Lot unavailable or insufficient stock: " + detail.getLotId());
-                        }
-                    }
-
                     try (PreparedStatement ps = conn.prepareStatement(detailSql)) {
 
                         ps.setInt(1, saleId);
@@ -312,9 +430,12 @@ public class SaleDAO {
                 }
 
                 conn.commit();
+
+                sale.setId(saleId);
+
                 return saleId;
 
-            } catch (SQLException e) {
+            } catch (SQLException | RuntimeException e) {
                 conn.rollback();
                 throw e;
             }
