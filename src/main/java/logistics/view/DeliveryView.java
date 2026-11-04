@@ -20,7 +20,10 @@ public class DeliveryView {
             System.out.println("\n========== LOGISTICS MENU ==========");
             System.out.println("1. Prepare sale");
             System.out.println("2. View dispatch panel");
-            System.out.println("3. Return");
+            System.out.println("3. Create delivery route");
+            System.out.println("4. Assign vehicle and driver");
+            System.out.println("5. Add sale to route");
+            System.out.println("6. Return");
             System.out.print("Select an option: ");
 
             if (!scanner.hasNextInt()) {
@@ -33,39 +36,25 @@ public class DeliveryView {
             scanner.nextLine();
 
             try {
+
                 switch (option) {
 
                     case 1: {
-
                         System.out.print("Sale ID: ");
+                        int saleId = readPositiveInt();
 
-                        if (!scanner.hasNextInt()) {
-                            System.out.println("Invalid sale ID.");
-                            scanner.nextLine();
-                            break;
-                        }
+                        int result = controller.prepareSale(saleId);
 
-                        int saleId = scanner.nextInt();
-                        scanner.nextLine();
-
-                        if (saleId <= 0) {
-                            System.out.println("Sale ID must be positive.");
-                            break;
-                        }
-
-                        int updated = controller.prepareSale(saleId);
-
-                        if (updated > 0) {
-                            System.out.println("Sale moved to preparation successfully.");
+                        if (result > 0) {
+                            System.out.println("Sale moved to preparation.");
                         } else {
-                            System.out.println("Sale not found or cannot be prepared.");
+                            System.out.println("Sale not found or invalid status.");
                         }
 
                         break;
                     }
 
                     case 2: {
-
                         List<Sale> sales = controller.findSalesInPreparation();
 
                         if (sales.isEmpty()) {
@@ -79,7 +68,6 @@ public class DeliveryView {
                                 System.out.println("Sale ID: " + sale.getId());
                                 System.out.println("Sale number: " + sale.getSaleNumber());
                                 System.out.println("Customer ID: " + sale.getCustomerId());
-                                System.out.println("Sale date: " + sale.getSaleDate());
                                 System.out.println("Total: " + sale.getTotalAmount());
                             }
                         }
@@ -87,7 +75,65 @@ public class DeliveryView {
                         break;
                     }
 
-                    case 3:
+                    case 3: {
+                        System.out.print("Route name: ");
+                        String routeName = scanner.nextLine().trim();
+
+                        System.out.print("Created by: ");
+                        String username = scanner.nextLine().trim();
+
+                        int routeId = controller.createRoute(routeName, username);
+
+                        System.out.println("Route created successfully. ID: " + routeId);
+
+                        break;
+                    }
+
+                    case 4: {
+                        System.out.print("Route ID: ");
+                        int routeId = readPositiveInt();
+
+                        System.out.print("Vehicle ID: ");
+                        int vehicleId = readPositiveInt();
+
+                        System.out.print("Driver ID: ");
+                        int driverId = readPositiveInt();
+
+                        int result = controller.assignDelivery(routeId, vehicleId, driverId);
+
+                        if (result > 0) {
+                            System.out.println("Vehicle and driver assigned successfully.");
+                        } else {
+                            System.out.println("Assignment failed. Check IDs and active status.");
+                        }
+
+                        break;
+                    }
+
+                    case 5: {
+                        System.out.print("Route ID: ");
+                        int routeId = readPositiveInt();
+
+                        System.out.print("Sale ID: ");
+                        int saleId = readPositiveInt();
+
+                        System.out.print("Delivery order: ");
+                        int deliveryOrder = readPositiveInt();
+
+                        int result = controller.addSaleToRoute(
+                                routeId, saleId, deliveryOrder
+                        );
+
+                        if (result > 0) {
+                            System.out.println("Sale added to route successfully.");
+                        } else {
+                            System.out.println("Could not add sale to route.");
+                        }
+
+                        break;
+                    }
+
+                    case 6:
                         System.out.println("Returning to main menu...");
                         break;
 
@@ -100,6 +146,27 @@ public class DeliveryView {
                 System.out.println("Database error: " + e.getMessage());
             }
 
-        } while (option != 3);
+        } while (option != 6);
+    }
+
+    private int readPositiveInt() {
+
+        while (true) {
+
+            if (!scanner.hasNextInt()) {
+                System.out.println("Invalid number. Try again:");
+                scanner.nextLine();
+                continue;
+            }
+
+            int number = scanner.nextInt();
+            scanner.nextLine();
+
+            if (number > 0) {
+                return number;
+            }
+
+            System.out.println("Number must be positive. Try again:");
+        }
     }
 }
