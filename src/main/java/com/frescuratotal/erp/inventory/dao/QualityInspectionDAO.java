@@ -11,6 +11,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -18,11 +21,13 @@ import java.sql.Statement;
  */
 public class QualityInspectionDAO {
     public int insertInspection(QualityInspection inspection)throws SQLException{
-        if (inspection.getLotId() <= 0) {
-            throw new IllegalArgumentException("Lot ID must be positive");
-        }
+        
         if (inspection == null) {
             throw new IllegalArgumentException("Inspection cannot be null");
+        }
+                
+        if (inspection.getLotId() <= 0) {
+            throw new IllegalArgumentException("Lot ID must be positive");
         }
         
         if (!"Aprobado".equalsIgnoreCase(inspection.getResult())
@@ -62,6 +67,37 @@ public class QualityInspectionDAO {
             try(ResultSet rs= ps.getGeneratedKeys()){
                 return rs.next() ? rs.getInt(1) :-1;
             }
+        }
+    }
+    
+    public List<QualityInspection> findByLotId(int lotId)throws SQLException{
+        if(lotId<=0){
+            throw new SQLException("Lot id cannot be negative");
+        }
+        
+        List<QualityInspection> inspection =new ArrayList<>();
+        String sql = "SELECT * FROM inspecciones_calidad WHERE id_lote = ?";
+        
+        try(Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement ps= conn.prepareStatement(sql)){
+            ps.setInt(1, lotId);
+            
+            try(ResultSet rs= ps.executeQuery()){
+                while(rs.next()){
+                    int inspectionId = rs.getInt("id_inspeccion");
+                    int lotIds = rs.getInt("id_lote");
+                    LocalDateTime inspectionDate = rs.getObject("fecha_inspeccion", LocalDateTime.class);
+                    String result =rs.getString("resultado");
+                    String inspectorName =rs.getString("nombre_inspector");
+                    String rejectionReason= rs.getString("motivo_rechazo");
+                    String notes =rs.getString("notas");
+                    
+                    QualityInspection record= new QualityInspection(inspectionId, lotIds, inspectionDate, result, inspectorName, rejectionReason, notes);
+                    inspection.add(record);
+                    
+                }
+            }return inspection;
+            
         }
     }
 }
