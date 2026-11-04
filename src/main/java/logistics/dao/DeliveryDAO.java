@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import sales.model.Sale;
@@ -68,4 +69,99 @@ public class DeliveryDAO {
 
         return sales;
     }
+    
+    public int createRoute(String routeName, String username) throws SQLException {
+
+    if (routeName == null || routeName.isBlank()
+            || username == null || username.isBlank()) {
+        throw new SQLException("Route name and username are required");
+    }
+
+    String sql = "INSERT INTO rutas_entrega "
+            + "(nombre_ruta, usuario_creacion) VALUES (?, ?)";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(
+                 sql, Statement.RETURN_GENERATED_KEYS)) {
+
+        ps.setString(1, routeName);
+        ps.setString(2, username);
+
+        ps.executeUpdate();
+
+        try (ResultSet rs = ps.getGeneratedKeys()) {
+            return rs.next() ? rs.getInt(1) : -1;
+        }
+    }
+}
+
+public int assignDelivery(int routeId, int vehicleId,
+                          int driverId) throws SQLException {
+
+    if (routeId <= 0 || vehicleId <= 0 || driverId <= 0) {
+        throw new SQLException("Invalid route, vehicle or driver ID");
+    }
+
+    String sql = "INSERT INTO asignaciones_entrega "
+            + "(id_ruta, id_vehiculo, id_conductor) "
+            + "SELECT r.id_ruta, v.id_vehiculo, c.id_conductor "
+            + "FROM rutas_entrega r "
+            + "JOIN vehiculos v ON v.id_vehiculo = ? "
+            + "JOIN conductores c ON c.id_conductor = ? "
+            + "WHERE r.id_ruta = ? "
+            + "AND r.estado = 'Planificada' "
+            + "AND v.estado = 'Activo' "
+            + "AND c.activo = TRUE "
+            + "AND NOT EXISTS ("
+            + "SELECT 1 FROM asignaciones_entrega a "
+            + "WHERE a.id_ruta = r.id_ruta)";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, vehicleId);
+        ps.setInt(2, driverId);
+        ps.setInt(3, routeId);
+
+        return ps.executeUpdate();
+    }
+}
+
+public int addSaleToRoute(int routeId, int saleId,
+                          int deliveryOrder) throws SQLException {
+
+    if (routeId <= 0 || saleId <= 0 || deliveryOrder <= 0) {
+        throw new SQLException("Invalid route, sale or delivery order");
+    }
+
+    String sql = "INSERT INTO ventas_ruta "
+            + "(id_ruta, id_venta, orden_entrega, direccion_destino) "
+            + "SELECT ?, v.id_venta, ?, c.direccion "
+            + "FROM ventas v "
+            + "JOIN clientes c ON v.id_cliente = c.id_cliente "
+            + "JOIN estados_venta e ON v.id_estado = e.id_estado "
+            + "WHERE v.id_venta = ? "
+            + "AND e.nombre = 'En Preparacion' "
+            + "AND c.direccion IS NOT NULL "
+            + "AND TRIM(c.direccion) <> '' "
+            + "AND EXISTS ("
+            + "SELECT 1 FROM rutas_entrega r "
+            + "JOIN asignaciones_entrega a ON a.id_ruta = r.id_ruta "
+            + "WHERE r.id_ruta = ? "
+            + "AND r.estado = 'Planificada') "
+            + "AND NOT EXISTS ("
+            + "SELECT 1 FROM ventas_ruta vr "
+            + "WHERE vr.id_venta = v.id_venta)";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, routeId);
+        ps.setInt(2, deliveryOrder);
+        ps.setInt(3, saleId);
+        ps.setInt(4, routeId);
+
+        return ps.executeUpdate();
+    }
+}
 }
