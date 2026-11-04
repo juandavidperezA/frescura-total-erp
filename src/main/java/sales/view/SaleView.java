@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import sales.controller.SaleController;
+import sales.controller.InvoiceController;
 import sales.model.Sale;
 import sales.model.SaleDetail;
+import sales.model.Invoice;
+import sales.service.InvoiceImageGenerator;
 
 public class SaleView {
 
@@ -57,6 +60,7 @@ public class SaleView {
                         String addMore;
 
                         do {
+
                             int productId = readPositiveInt("Product ID: ");
 
                             System.out.println("\nAvailable lots (FEFO):");
@@ -115,12 +119,32 @@ public class SaleView {
                         System.out.println("Tax: " + sale.getTotalTax());
                         System.out.println("Total: " + sale.getTotalAmount());
 
+                        try {
+
+                            InvoiceController invoiceController = new InvoiceController();
+
+                            Invoice invoice = invoiceController.createInvoice(saleId);
+
+                            InvoiceImageGenerator generator = new InvoiceImageGenerator();
+
+                            System.out.println("Invoice saved: "
+                                    + generator.generate(invoice));
+
+                        } catch (Exception e) {
+
+                            System.out.println(
+                                    "Sale confirmed, but invoice generation failed: "
+                                    + e.getMessage()
+                            );
+                        }
+
                         break;
                     }
 
                     case 2: {
 
                         int id = readPositiveInt("Sale ID: ");
+
                         Sale sale = controller.findSaleById(id);
 
                         if (sale == null) {
@@ -139,6 +163,7 @@ public class SaleView {
                         if (sales.isEmpty()) {
                             System.out.println("No sales found.");
                         } else {
+
                             for (Sale sale : sales) {
                                 printSale(sale);
                             }
@@ -150,6 +175,7 @@ public class SaleView {
                     case 4: {
 
                         int productId = readPositiveInt("Product ID: ");
+
                         controller.findAvailableLotsByProduct(productId);
 
                         break;
@@ -165,6 +191,7 @@ public class SaleView {
                 }
 
             } catch (SQLException e) {
+
                 System.out.println("Database error: " + e.getMessage());
             }
 
@@ -176,11 +203,14 @@ public class SaleView {
         while (true) {
 
             System.out.print(message);
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
 
             try {
+
                 return Integer.parseInt(input);
+
             } catch (NumberFormatException e) {
+
                 System.out.println("Invalid number.");
             }
         }
@@ -205,20 +235,23 @@ public class SaleView {
         while (true) {
 
             System.out.print(message);
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
 
             try {
+
                 double number = Double.parseDouble(input);
 
                 if (Double.isFinite(number)
                         && number > 0
                         && Math.abs(number * 100 - Math.rint(number * 100)) < 0.000001) {
+
                     return number;
                 }
 
                 System.out.println("Enter a positive quantity with at most two decimals.");
 
             } catch (NumberFormatException e) {
+
                 System.out.println("Invalid quantity.");
             }
         }
