@@ -1,13 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package logistics.controller;
 
-/**
- *
- * @author camper
- */
+import java.sql.SQLException;
+import java.util.List;
+import logistics.dao.DeliveryDAO;
+import sales.model.Sale;
+
 public class DeliveryController {
-    
+
+    private final DeliveryDAO deliveryDAO = new DeliveryDAO();
+
+    public int prepareSale(int saleId) throws SQLException {
+        return deliveryDAO.prepareSale(saleId);
+    }
+
+    public List<Sale> findSalesInPreparation() throws SQLException {
+        return deliveryDAO.findSalesInPreparation();
+    }
 }
