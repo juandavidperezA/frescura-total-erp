@@ -16,4 +16,16 @@ public class DeliveryController {
     public List<Sale> findSalesInPreparation() throws SQLException {
         return deliveryDAO.findSalesInPreparation();
     }
+
+    public int createRoute(String routeName, String username) throws SQLException {
+        return deliveryDAO.createRoute(routeName, username);
+    }
+
+    public int assignDelivery(int routeId, int vehicleId, int driverId) throws SQLException {
+        return deliveryDAO.assignDelivery(routeId, vehicleId, driverId);
+    }
+
+    public int addSaleToRoute(int routeId, int saleId, int deliveryOrder) throws SQLException {
+        return deliveryDAO.addSaleToRoute(routeId, saleId, deliveryOrder);
+    }
 }
