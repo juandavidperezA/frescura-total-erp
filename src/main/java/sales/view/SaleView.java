@@ -32,36 +32,28 @@ public class SaleView {
                 switch (option) {
 
                     case 1: {
+
                         System.out.println("\n========== CREATE SALE ==========");
 
-                        String saleNumber;
+                        System.out.print("Sale number: ");
+                        String saleNumber = scanner.nextLine().trim();
 
-                        do {
-                            System.out.print("Sale number: ");
-                            saleNumber = scanner.nextLine().trim();
-
-                            if (saleNumber.isEmpty() || saleNumber.length() > 50) {
-                                System.out.println("Invalid sale number.");
-                            }
-
-                        } while (saleNumber.isEmpty() || saleNumber.length() > 50);
+                        if (saleNumber.isEmpty() || saleNumber.length() > 50) {
+                            System.out.println("Invalid sale number.");
+                            break;
+                        }
 
                         int customerId = readPositiveInt("Customer ID: ");
 
-                        String registeredBy;
+                        System.out.print("Registered by: ");
+                        String registeredBy = scanner.nextLine().trim();
 
-                        do {
-                            System.out.print("Registered by: ");
-                            registeredBy = scanner.nextLine().trim();
-
-                            if (registeredBy.isEmpty() || registeredBy.length() > 100) {
-                                System.out.println("Invalid username.");
-                            }
-
-                        } while (registeredBy.isEmpty() || registeredBy.length() > 100);
+                        if (registeredBy.isEmpty() || registeredBy.length() > 100) {
+                            System.out.println("Invalid user.");
+                            break;
+                        }
 
                         List<SaleDetail> details = new ArrayList<>();
-
                         String addMore;
 
                         do {
@@ -93,7 +85,6 @@ public class SaleView {
 
                         } while (addMore.equalsIgnoreCase("Y"));
 
-                        System.out.println("\nProducts added: " + details.size());
                         System.out.print("Confirm sale? (Y/N): ");
                         String confirm = scanner.nextLine().trim();
 
@@ -117,23 +108,19 @@ public class SaleView {
 
                         int saleId = controller.confirmSale(sale, details);
 
-                        if (saleId > 0) {
-                            System.out.println("\nSale confirmed successfully.");
-                            System.out.println("Sale ID: " + saleId);
-                            System.out.println("Subtotal: " + sale.getSubtotal());
-                            System.out.println("Discount: " + sale.getTotalDiscount());
-                            System.out.println("Tax: " + sale.getTotalTax());
-                            System.out.println("Total: " + sale.getTotalAmount());
-                        } else {
-                            System.out.println("Sale confirmation failed.");
-                        }
+                        System.out.println("\nSale confirmed successfully.");
+                        System.out.println("Sale ID: " + saleId);
+                        System.out.println("Subtotal: " + sale.getSubtotal());
+                        System.out.println("Discount: " + sale.getTotalDiscount());
+                        System.out.println("Tax: " + sale.getTotalTax());
+                        System.out.println("Total: " + sale.getTotalAmount());
 
                         break;
                     }
 
                     case 2: {
-                        int id = readPositiveInt("Sale ID: ");
 
+                        int id = readPositiveInt("Sale ID: ");
                         Sale sale = controller.findSaleById(id);
 
                         if (sale == null) {
@@ -146,6 +133,7 @@ public class SaleView {
                     }
 
                     case 3: {
+
                         List<Sale> sales = controller.findAllSales();
 
                         if (sales.isEmpty()) {
@@ -160,8 +148,10 @@ public class SaleView {
                     }
 
                     case 4: {
+
                         int productId = readPositiveInt("Product ID: ");
                         controller.findAvailableLotsByProduct(productId);
+
                         break;
                     }
 
@@ -184,12 +174,12 @@ public class SaleView {
     private int readInt(String message) {
 
         while (true) {
+
             System.out.print(message);
-            String input = scanner.nextLine().trim();
+            String input = scanner.nextLine();
 
             try {
                 return Integer.parseInt(input);
-
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number.");
             }
@@ -199,6 +189,7 @@ public class SaleView {
     private int readPositiveInt(String message) {
 
         while (true) {
+
             int number = readInt(message);
 
             if (number > 0) {
@@ -212,8 +203,9 @@ public class SaleView {
     private double readPositiveDouble(String message) {
 
         while (true) {
+
             System.out.print(message);
-            String input = scanner.nextLine().trim();
+            String input = scanner.nextLine();
 
             try {
                 double number = Double.parseDouble(input);
