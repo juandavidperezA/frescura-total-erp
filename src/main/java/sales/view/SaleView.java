@@ -1,7 +1,12 @@
 
 package sales.view;
 
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import config.DatabaseConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -32,7 +37,7 @@ public class SaleView {
 
             option = readInt("Select an option: ");
             
-                    AppLogger.logAction("SALES", "Selected option: " + option);
+            AppLogger.logAction("SALES", "Selected option: " + option);
                     
             try {
                 switch (option) {
@@ -46,6 +51,7 @@ public class SaleView {
 
                         if (saleNumber.isEmpty() || saleNumber.length() > 50) {
                             System.out.println("Invalid sale number.");
+                            AppLogger.logError("SALES", "INVALID_SALE_NUMBER");
                             break;
                         }
 
@@ -56,6 +62,7 @@ public class SaleView {
 
                         if (registeredBy.isEmpty() || registeredBy.length() > 100) {
                             System.out.println("Invalid user.");
+                            AppLogger.logError("SALES", "INVALID_REGISTERED_USER");
                             break;
                         }
 
@@ -65,12 +72,26 @@ public class SaleView {
                         do {
 
                             int productId = readPositiveInt("Product ID: ");
+                                System.out.println("\nAvailable lots (FEFO):");
+                                controller.findAvailableLotsByProduct(productId);
 
-                            System.out.println("\nAvailable lots (FEFO):");
-                            controller.findAvailableLotsByProduct(productId);
+                                int lotId;
 
-                            int lotId = readPositiveInt("Lot ID: ");
-                            double quantity = readPositiveDouble("Quantity: ");
+                                while (true) {
+                                    lotId = readPositiveInt("Lot ID: ");
+
+                                    if (isLotFromProduct(lotId, productId)) {
+                                        break;
+                                    }
+
+                                    System.out.println("Error: Lot does not belong to selected product.");
+
+                                    AppLogger.logError("SALES",
+                                            "INVALID_LOT_PRODUCT | Product ID: " + productId
+                                            + " | Lot ID: " + lotId);
+                                }
+
+                                double quantity = readPositiveDouble("Quantity: ");
 
                             SaleDetail detail = new SaleDetail(
                                     0,
@@ -97,6 +118,8 @@ public class SaleView {
 
                         if (!confirm.equalsIgnoreCase("Y")) {
                             System.out.println("Sale cancelled.");
+                            AppLogger.logAction("SALES",
+                            "SALE_CANCELLED | Sale number: " + saleNumber);
                             break;
                         }
 
@@ -114,6 +137,20 @@ public class SaleView {
                         );
 
                         int saleId = controller.confirmSale(sale, details);
+                        AppLogger.logAction("SALES",
+                            "SALE_CONFIRMED | Sale ID: " + saleId
+                            + " | Sale number: " + saleNumber
+                            + " | Customer ID: " + customerId
+                            + " | User: " + registeredBy
+                            + " | Total: " + sale.getTotalAmount());
+                        
+                        for (SaleDetail detail : details) {
+                                AppLogger.logAction("SALES",
+                                    "SALE_DETAIL | Sale ID: " + saleId
+                                    + " | Lot ID: " + detail.getLotId()
+                                    + " | Quantity: " + detail.getQuantitySold()
+                                    + " | Unit price: " + detail.getUnitPrice());
+                            }
 
                         System.out.println("\nSale confirmed successfully.");
                         System.out.println("Sale ID: " + saleId);
@@ -130,11 +167,19 @@ public class SaleView {
 
                             InvoiceImageGenerator generator = new InvoiceImageGenerator();
 
-                            System.out.println("Invoice saved: "
-                                    + generator.generate(invoice));
+                            Path invoicePath = generator.generate(invoice);
+
+                        System.out.println("Invoice saved: " + invoicePath);
+
+                        AppLogger.logAction("INVOICES",
+                            "INVOICE_SAVED | Sale ID: " + saleId
+                            + " | Invoice ID: " + invoice.getId()
+                            + " | File: " + invoicePath);
 
                         } catch (Exception e) {
-
+                            AppLogger.logError("INVOICES",
+                                "INVOICE_GENERATION_FAILED | Sale ID: "
+                                + saleId + " | " + e.getMessage());
                             System.out.println(
                                     "Sale confirmed, but invoice generation failed: "
                                     + e.getMessage()
@@ -194,7 +239,8 @@ public class SaleView {
                 }
 
             } catch (SQLException e) {
-
+                AppLogger.logError("SALES",
+                    "DATABASE_ERROR | " + e.getMessage());
                 System.out.println("Database error: " + e.getMessage());
             }
 
@@ -256,6 +302,23 @@ public class SaleView {
             } catch (NumberFormatException e) {
 
                 System.out.println("Invalid quantity.");
+            }
+        }
+    }
+
+    // Ensures the selected lot belongs to the requested product.
+    private boolean isLotFromProduct(int lotId, int productId)
+            throws SQLException {
+
+        String sql = "SELECT id_producto FROM lotes_inventario WHERE id_lote = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, lotId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt("id_producto") == productId;
             }
         }
     }
