@@ -9,6 +9,7 @@ package com.frescuratotal.erp.suppliers.model;
  * @author USUARIO
  */
 public class SupplierProductDetail {
+    // tables =productos_proveedor, proveedores, productos
     private final int supplierId;
     private final String supplierName;
     private final int productId;

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
  * @author USUARIO
  */
 public class InventoryWaste {
+    // table= registro_mermas
     private int id;
     private int lotId;
     private Integer inspectionId;

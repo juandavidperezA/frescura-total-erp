@@ -13,6 +13,7 @@ public class SupplierProduct {
     private final int supplierId;
 
     public SupplierProduct(int supplierId, int productId){
+        //table= productos_proveedor
          this.supplierId=supplierId;
          this.productId=productId;
     }

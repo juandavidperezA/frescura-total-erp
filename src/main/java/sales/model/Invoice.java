@@ -4,7 +4,7 @@ package sales.model;
 import java.time.LocalDateTime;
 
 public class Invoice {
-
+// table= facturas
     private int id;
     private int saleId;
     private String invoiceNumber;

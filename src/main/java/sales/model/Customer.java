@@ -4,7 +4,7 @@ package sales.model;
 import java.time.LocalDateTime;
 
 public class Customer {
-
+// table= clientes
     private int id;
     private String name;
     private String document;

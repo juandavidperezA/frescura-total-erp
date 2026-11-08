@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 
 public class Sale {
-    
+    //table= ventas
     private int id;
     private String saleNumber;
     private int customerId;

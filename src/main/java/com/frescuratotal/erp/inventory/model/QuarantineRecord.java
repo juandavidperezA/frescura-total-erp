@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
  * @author USUARIO
  */
 public class QuarantineRecord {
+    //table: registro_cuarentena
     private int id;
     private int lotId;
     private String reason;

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
  * @author USUARIO
  */
 public class QualityInspection {
+    //table= inspecciones_calidad
     private int inspectionId;
     private int lotId;
     private LocalDateTime inspectionDate;

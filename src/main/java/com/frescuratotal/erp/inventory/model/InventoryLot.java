@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
  * @author USUARIO
  */
 public class InventoryLot {
+    //table= lotes_inventario
     private int id;
     private String lotNumber;
     private int productId;

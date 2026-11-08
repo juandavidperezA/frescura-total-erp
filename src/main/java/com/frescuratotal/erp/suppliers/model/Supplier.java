@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
  * @author USUARIO
  */
 public class Supplier {
+    // table= proveedores
     private int id;
     private String name;
     private String nit;

@@ -2,7 +2,7 @@
 package sales.model;
 
 public class SaleDetail {
-
+//table=  detalles_venta
     private int id;
     private int saleId;
     private int lotId;

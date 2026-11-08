@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
  * @author USUARIO
  */
 public class SupplierReceiptDetail {
+    //table= lotes_inventario, productos
     private final String lotNumber;
     private final String productName;
     private final BigDecimal initialQuantity;
