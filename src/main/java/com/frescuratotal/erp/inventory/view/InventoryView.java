@@ -543,5 +543,29 @@ public class InventoryView {
             }
         }while(option !=13);
     }
+        
+    public void proveedorconmasvolumen()throws SQLException{
+        try {
+            List<InventoryLot> inven= control.findAllLots();
+            if(inven==null){
+                System.out.println("no hay proveedores registrados");
+                return;
+            }
+            
+            System.out.println("==========Proveedores con mas volumen=============");
+            
+            for(InventoryLot invent: inven){
+                
+                if(invent.getInitialQuantity()+invent.getQuantity()>){
+                
+                }
+            }
+            
+            
+            
+        } catch (SQLException e) {
+            System.out.println("error: "+e.getMessage());
+        }
+    }
     
 }

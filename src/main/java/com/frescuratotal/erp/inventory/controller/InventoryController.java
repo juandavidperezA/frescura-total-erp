@@ -98,5 +98,9 @@ public class InventoryController {
             throws SQLException {
         return inventoryWasteDAO.findByLotId(lotId);
     }
+    
+    public InventoryLot infonecesario()throws SQLException{
+        return inventoryLotDAO.informacionnecesaria();
+    }
 }
 

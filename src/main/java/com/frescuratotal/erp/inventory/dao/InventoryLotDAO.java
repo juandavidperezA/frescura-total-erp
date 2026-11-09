@@ -173,6 +173,48 @@ public class InventoryLotDAO {
             }
         }
         
+        public InventoryLot informacionnecesaria()throws SQLException{
+            String sql="""
+                       SELECT 
+                           l.id_lote,
+                           l.cantidad_inicial,
+                           l.cantidad,
+                           e.nombre AS estado_lote,
+                           p.id_proveedor,
+                           p.nombre AS nombre_proveedor
+                       FROM lotes_inventario l
+                       INNER JOIN proveedores p ON l.id_proveedor = p.id_proveedor
+                       INNER JOIN estados_lote e ON l.id_estado = e.id_estado
+                       """;
+            
+            try(Connection conn= DatabaseConnection.getConnection();
+                PreparedStatement ps= conn.prepareStatement(sql)){
+                
+                try(ResultSet rs =ps.executeQuery()){
+                    InventoryLot lot= mapInventoryLot(rs);
+                    return lot;
+                }
+            }
+        }
+        
+        public InventoryLot mayorvolumen()throws SQLException{
+            String sql="SELECT l.id_lote, l.cantidad_inicial, l.cantidad,p.nombre AS nombre_proveedor FROM lotes_invantario l "
+                    + "INNER JOIN proveedores p ON l.id_proveedor = p.id_proveedor  ";
+            
+            try(Connection conn= DatabaseConnection.getConnection();
+                PreparedStatement ps= conn.prepareStatement(sql)){
+                
+                try(ResultSet rs =ps.executeQuery()){
+                    InventoryLot lot= mapInventoryLot(rs);
+                    return lot;
+                }
+            }
+        }
+        
+        
+        public InventoryLot lotesvencidos
+                
+                
     private InventoryLot mapInventoryLot(ResultSet rs)throws SQLException{
                     int lotId = rs.getInt("id_lote");
                     String lotNumber = rs.getString("numero_lote");

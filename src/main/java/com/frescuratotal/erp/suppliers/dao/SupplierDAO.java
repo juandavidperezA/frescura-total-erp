@@ -146,4 +146,18 @@ public class SupplierDAO {
             return ps.executeUpdate();
         }
     }
+    
+    public void proveedorconmasvolumen()throws SQLException{
+        String sql="""
+                   SELECT 
+                       l.id_lote,
+                       l.cantidad_inicial,
+                       e.nombre AS estado_lote,
+                       p.id_proveedor,
+                       p.nombre AS nombre_proveedor
+                   FROM lotes_inventario l
+                   INNER JOIN proveedores p ON l.id_proveedor = p.id_proveedor
+                   INNER JOIN estados_lote e ON l.id_estado = e.id_estado;
+                   """;
+    }
 }

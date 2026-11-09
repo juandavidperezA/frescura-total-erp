@@ -4,6 +4,7 @@
  */
 package com.frescuratotal.erp.suppliers.view;
 
+import com.frescuratotal.erp.inventory.model.InventoryLot;
 import com.frescuratotal.erp.suppliers.controller.SupplierController;
 import com.frescuratotal.erp.suppliers.dao.SupplierProductDAO;
 import com.frescuratotal.erp.suppliers.model.Supplier;
@@ -39,7 +40,8 @@ public class SupplierView {
         System.out.println("7. List products by supplier");
         System.out.println("8. List suppliers by product");
         System.out.println("9. View supplier receipt history");
-        System.out.println("10. Return to main menu");
+        System.out.println("10. Generar reporte de rendimiento de proveedores");
+        System.out.println("11. Return to main menu");
         System.out.println("Please choose an option: ");
         System.out.println("----------------------------------------------");        
     }
@@ -416,14 +418,17 @@ public class SupplierView {
                         System.out.println("Error retrieving supplier receipt history: "+e.getMessage());
                 }
                 break;
+                
             case 10:
+                break;
+            case 11:
                 System.out.println("Returning to main menu...");
                 break;
             default:
                 System.out.println("Invalid option. Please try again.");
                 break;
         }
-    }while(option!=10);
+    }while(option!=11);
     }
-    
+
 }
